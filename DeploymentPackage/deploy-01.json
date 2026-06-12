@@ -143,7 +143,7 @@
         "publicIPAllocationMethod": "Static",
         "publicIPAddressVersion": "IPv4",
         "dnsSettings": {
-          "domainNameLabel": "[toLower(concat('windows-', uniqueString(resourceGroup().id, parameters('DeploymentID'))))]"
+          "domainNameLabel": "[toLower(concat('labvm-', uniqueString(resourceGroup().id, parameters('DeploymentID'))))]"
         }
       }
     },
