@@ -2,6 +2,9 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "CloudLabsDeploymentID": {
+      "type": "string"
+    },
     "azureUserName": {
       "type": "string"
     },
@@ -14,25 +17,6 @@
     "DeploymentID": {
       "type": "string"
     },
-    "adminUsername": {
-      "type": "string",
-      "defaultValue": "azureuser",
-      "metadata": {
-        "description": "Administrator username for the Windows virtual machine."
-      }
-    },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Administrator password for the Windows virtual machine."
-      }
-    },
-    "trainerUserName": {
-      "type": "string"
-    },
-    "trainerUserPassword": {
-      "type": "string"
-    },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]",
@@ -40,51 +24,67 @@
         "description": "Azure region for all deployed resources."
       }
     },
+    "vpcCidr": {
+      "type": "string",
+      "defaultValue": "10.10.0.0/16",
+      "metadata": {
+        "description": "Address space for the Virtual Network (equivalent to VPC CIDR)."
+      }
+    },
+    "subnetCidr": {
+      "type": "string",
+      "defaultValue": "10.10.0.0/24",
+      "metadata": {
+        "description": "Address prefix for the VM subnet."
+      }
+    },
+    "clgClusterSubnetCidr": {
+      "type": "string",
+      "defaultValue": "10.10.1.0/24",
+      "metadata": {
+        "description": "Address prefix for the container/cluster subnet."
+      }
+    },
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_B2s",
       "metadata": {
-        "description": "Virtual machine size for the Windows VM."
+        "description": "VM size (equivalent to EC2 t3.micro)."
       }
     },
-    "virtualNetworkName": {
+    "VMUserName": {
       "type": "string",
-      "defaultValue": "azops-vnet"
+      "defaultValue": "Labuser",
+      "metadata": {
+        "description": "Administrator username for the Windows VM."
+      }
     },
-    "subnetName": {
-      "type": "string",
-      "defaultValue": "workload-subnet"
-    },
-    "networkSecurityGroupName": {
-      "type": "string",
-      "defaultValue": "azops-nsg"
-    },
-    "windowsVmName": {
-      "type": "string",
-      "defaultValue": "windows-vm"
-    },
-    "windowsImageOffer": {
-      "type": "string",
-      "defaultValue": "WindowsServer"
-    },
-    "windowsImageSku": {
-      "type": "string",
-      "defaultValue": "2022-datacenter-azure-edition"
+    "VMPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Administrator password for the Windows VM."
+      }
     }
   },
   "variables": {
-    "windowsPublicIpName": "windows-vm-pip",
-    "windowsNicName": "windows-vm-nic",
-    "vnetAddressPrefix": "10.0.0.0/16",
-    "subnetPrefix": "10.0.0.0/24",
-    "windowsPrivateIpAddress": "10.0.0.20",
-    "windowsOsDiskName": "windows-vm-osdisk"
+    "virtualNetworkName": "clgVnet",
+    "vmSubnetName": "vmSubnet",
+    "clgClusterSubnetName": "clgClusterSubnet",
+    "vmNsgName": "vmSecurityGroup",
+    "clgNsgName": "clgSg",
+    "vmPublicIpName": "labvm-pip",
+    "vmNicName": "labvm-nic",
+    "vmName": "labvm",
+    "vmOsDiskName": "labvm-osdisk",
+    "containerGroupName": "clg-containergroup"
   },
   "resources": [
+
     {
+      "comments": "NSG for VM subnet - allows RDP and all TCP (mirrors vmSecurityGroup in CFN)",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2023-09-01",
-      "name": "[parameters('networkSecurityGroupName')]",
+      "name": "[variables('vmNsgName')]",
       "location": "[parameters('location')]",
       "properties": {
         "securityRules": [
@@ -100,41 +100,114 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*"
             }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2023-09-01",
-      "name": "[parameters('virtualNetworkName')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
-      ],
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('vnetAddressPrefix')]"
-          ]
-        },
-        "subnets": [
+          },
           {
-            "name": "[parameters('subnetName')]",
+            "name": "Allow-All-TCP-Inbound",
             "properties": {
-              "addressPrefix": "[variables('subnetPrefix')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
-              }
+              "priority": 1100,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*"
             }
           }
         ]
       }
     },
+
     {
+      "comments": "NSG for cluster subnet - fully open inbound/outbound (mirrors clgSg in CFN)",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2023-09-01",
+      "name": "[variables('clgNsgName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "Allow-All-Inbound",
+            "properties": {
+              "priority": 100,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*"
+            }
+          },
+          {
+            "name": "Allow-All-Outbound",
+            "properties": {
+              "priority": 100,
+              "direction": "Outbound",
+              "access": "Allow",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "comments": "Virtual Network with two subnets (equivalent to clgVpc + vmSubnet + clgClusterSubnet)",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2023-09-01",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmNsgName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('clgNsgName'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vpcCidr')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('vmSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetCidr')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmNsgName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('clgClusterSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('clgClusterSubnetCidr')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('clgNsgName'))]"
+              },
+              "delegations": [
+                {
+                  "name": "aciDelegation",
+                  "properties": {
+                    "serviceName": "Microsoft.ContainerInstance/containerGroups"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "comments": "Static Public IP for the lab VM",
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2023-09-01",
-      "name": "[variables('windowsPublicIpName')]",
+      "name": "[variables('vmPublicIpName')]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "Standard"
@@ -147,59 +220,66 @@
         }
       }
     },
+
     {
+      "comments": "NIC for the lab VM",
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2023-09-01",
-      "name": "[variables('windowsNicName')]",
+      "name": "[variables('vmNicName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('windowsPublicIpName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))]"
       ],
       "properties": {
         "ipConfigurations": [
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "[variables('windowsPrivateIpAddress')]",
+              "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('vmSubnetName'))]"
               },
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('windowsPublicIpName'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))]"
               }
             }
           }
         ]
       }
     },
+
     {
+      "comments": "Windows Server 2022 VM with Chocolatey, VSCode, Brave, Git, Node.js, n8n, Power Automate, Power BI (mirrors vmInstance UserData)",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2023-09-01",
-      "name": "[parameters('windowsVmName')]",
+      "name": "[variables('vmName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('windowsNicName'))]"
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
       ],
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[parameters('windowsVmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "computerName": "[variables('vmName')]",
+          "adminUsername": "[parameters('VMUserName')]",
+          "adminPassword": "[parameters('VMPassword')]",
+          "windowsConfiguration": {
+            "provisionVMAgent": true,
+            "enableAutomaticUpdates": false
+          }
         },
         "storageProfile": {
           "imageReference": {
             "publisher": "MicrosoftWindowsServer",
-            "offer": "[parameters('windowsImageOffer')]",
-            "sku": "[parameters('windowsImageSku')]",
+            "offer": "WindowsServer",
+            "sku": "2022-datacenter-azure-edition",
             "version": "latest"
           },
           "osDisk": {
-            "name": "[variables('windowsOsDiskName')]",
+            "name": "[variables('vmOsDiskName')]",
             "createOption": "FromImage",
             "managedDisk": {
               "storageAccountType": "StandardSSD_LRS"
@@ -209,45 +289,147 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('windowsNicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "comments": "Custom Script Extension - mirrors EC2 UserData: renames Administrator, installs Chocolatey packages, n8n, Power Automate, Power BI",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2023-09-01",
+      "name": "[concat(variables('vmName'), '/CustomScriptExtension')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.10",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"net user Administrator ''', parameters('VMPassword'), '''; Rename-LocalUser -Name Administrator -NewName ', parameters('VMUserName'), '; $Password = ConvertTo-SecureString ''', parameters('VMPassword'), ''' -AsPlainText -Force; $UserAccount = Get-LocalUser -Name ', parameters('VMUserName'), '; $UserAccount | Set-LocalUser -Password $Password; Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString(''https://community.chocolatey.org/install.ps1'')); if (Test-Path \"$env:ChocolateyInstall\\helpers\\chocolateyProfile.psm1\") { Import-Module \"$env:ChocolateyInstall\\helpers\\chocolateyProfile.psm1\" }; choco install vscode -y --ignore-detected-reboot; choco install brave -y --ignore-detected-reboot; choco install git -y --ignore-detected-reboot; choco install nodejs-lts -y --ignore-detected-reboot; $env:Path += '';C:\\Program Files\\nodejs''; Start-Sleep -Seconds 20; if (Get-Command npm -ErrorAction SilentlyContinue) { try { npm install -g n8n } catch { Start-Sleep -Seconds 20; npm install -g n8n } }; $powerAutomateUrl=''https://go.microsoft.com/fwlink/?linkid=2102613''; $powerAutomateInstaller=\"$env:TEMP\\PowerAutomateSetup.exe\"; Invoke-WebRequest -Uri $powerAutomateUrl -OutFile $powerAutomateInstaller; Start-Process -FilePath $powerAutomateInstaller -ArgumentList ''-Silent'' -Wait; $powerBIUrl=''https://download.microsoft.com/download/8/8/0/880BCA75-79DD-466A-927D-1ABF1F5454B0/PBIDesktopSetup_x64.exe''; $powerBIInstaller=\"$env:TEMP\\PBIDesktopSetup_x64.exe\"; Invoke-WebRequest -Uri $powerBIUrl -OutFile $powerBIInstaller; Start-Process -FilePath $powerBIInstaller -ArgumentList ''-quiet'',''-norestart'' -Wait; Start-Sleep -Seconds 30;\"')]"
+        }
+      }
+    },
+
+    {
+      "comments": "Azure Container Instance in the cluster subnet (equivalent to ECS Fargate in clgClusterSubnet with clgSg)",
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2023-05-01",
+      "name": "[variables('containerGroupName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+      ],
+      "properties": {
+        "sku": "Standard",
+        "subnetIds": [
+          {
+            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('clgClusterSubnetName'))]"
+          }
+        ],
+        "containers": [
+          {
+            "name": "clg-rdp-container",
+            "properties": {
+              "image": "mcr.microsoft.com/azure-cli:latest",
+              "resources": {
+                "requests": {
+                  "cpu": 1,
+                  "memoryInGB": 2
+                }
+              },
+              "ports": [
+                {
+                  "protocol": "TCP",
+                  "port": 443
+                },
+                {
+                  "protocol": "TCP",
+                  "port": 80
+                }
+              ]
+            }
+          }
+        ],
+        "osType": "Linux",
+        "restartPolicy": "Always",
+        "ipAddress": {
+          "type": "Private",
+          "ports": [
+            {
+              "protocol": "TCP",
+              "port": 443
+            },
+            {
+              "protocol": "TCP",
+              "port": 80
             }
           ]
         }
       }
     }
+
   ],
   "outputs": {
-    "vmServerDnsName": {
+    "VnetId": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('windowsPublicIpName'))).dnsSettings.fqdn]"
+      "description": "The ID of the Virtual Network (equivalent to VpcId)",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
     },
-    "vmServerUsername": {
+    "vmSubnetId": {
       "type": "string",
-      "value": "[parameters('adminUsername')]"
+      "description": "The ID of the VM Subnet",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('vmSubnetName'))]"
     },
-    "vmServerPassword": {
+    "clusterSubnetId": {
+      "type": "string",
+      "description": "The ID of the Cluster Subnet",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('clgClusterSubnetName'))]"
+    },
+    "vmSecurityGroupId": {
+      "type": "string",
+      "description": "The NSG ID of the VM",
+      "value": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmNsgName'))]"
+    },
+    "clusterSecurityGroupId": {
+      "type": "string",
+      "description": "The NSG ID of the Cluster",
+      "value": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('clgNsgName'))]"
+    },
+    "VMName": {
+      "type": "string",
+      "description": "Name of the VM",
+      "value": "[variables('vmName')]"
+    },
+    "VMPublicIP": {
+      "type": "string",
+      "description": "VM Public IP Address",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))).ipAddress]"
+    },
+    "VMPublicDNSName": {
+      "type": "string",
+      "description": "VM Public DNS Name (FQDN)",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))).dnsSettings.fqdn]"
+    },
+    "VMUserName": {
+      "type": "string",
+      "description": "VM Username",
+      "value": "[parameters('VMUserName')]"
+    },
+    "VMPassword": {
       "type": "securestring",
-      "value": "[parameters('adminPassword')]"
+      "description": "VM Password",
+      "value": "[parameters('VMPassword')]"
     },
-    "virtualNetworkName": {
+    "ContainerGroupName": {
       "type": "string",
-      "value": "[parameters('virtualNetworkName')]"
-    },
-    "subnetName": {
-      "type": "string",
-      "value": "[parameters('subnetName')]"
-    },
-    "networkSecurityGroupName": {
-      "type": "string",
-      "value": "[parameters('networkSecurityGroupName')]"
-    },
-    "windowsVmName": {
-      "type": "string",
-      "value": "[parameters('windowsVmName')]"
-    },
-    "windowsPublicIpAddress": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('windowsPublicIpName'))).ipAddress]"
+      "description": "Name of the Container Group (equivalent to ECS Fargate cluster)",
+      "value": "[variables('containerGroupName')]"
     }
   }
 }
