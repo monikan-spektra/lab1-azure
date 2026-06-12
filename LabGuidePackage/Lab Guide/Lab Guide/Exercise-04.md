@@ -109,7 +109,7 @@ After completing this exercise, you will be able to:
 3. Review the output carefully and make sure the expected Azure virtual machines are available and operational.
 4. Save your work if your instructor or lab workflow requires it.
 
-<validation step="VM Power States"/>
+<validation step="5efa3b45-81c0-442f-9755-ebdcf943e908"/>
 
 ## Evaluation Criteria
 
