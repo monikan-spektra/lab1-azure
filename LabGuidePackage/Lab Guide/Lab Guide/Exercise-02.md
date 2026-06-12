@@ -90,7 +90,7 @@ In this task, you will update the SSH configuration to harden access to the Ubun
 > [!Important]
 > Ensure that key-based access is confirmed before applying the final SSH changes. Otherwise, you might prevent remote administrative access to the VM.
 
-<validation step="Secure SSH access"/>
+
 
 ### Task 3: Validate and restart the SSH service
 
