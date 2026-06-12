@@ -25,6 +25,12 @@
     },
     "trainerUserPassword": {
       "value": "GEN-PASSWORD"
+    },
+    "VMUserName": {
+      "value": "Labuser"
+    },
+    "VMPassword": {
+      "value": "GEN-PASSWORD"
     }
   }
 }
