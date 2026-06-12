@@ -17,18 +17,6 @@
     "DeploymentID": {
       "value": "GET-DEPLOYMENT-ID"
     },
-    "adminUsername": {
-      "value": "azureuser"
-    },
-    "adminPassword": {
-      "value": "GEN-PASSWORD"
-    },
-    "trainerUserName": {
-      "value": "instructor"
-    },
-    "trainerUserPassword": {
-      "value": "GEN-PASSWORD"
-    },
     "VMUserName": {
       "value": "Labuser"
     },
