@@ -11,6 +11,34 @@
     "azurePassword": {
       "type": "securestring"
     },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "Accepted for platform compatibility. VM uses VMUserName instead."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Accepted for platform compatibility. VM uses VMPassword instead."
+      }
+    },
+    "trainerUserName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Accepted for platform compatibility."
+      }
+    },
+    "trainerUserPassword": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Accepted for platform compatibility."
+      }
+    },
     "ODLID": {
       "type": "string"
     },
