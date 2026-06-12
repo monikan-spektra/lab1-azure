@@ -116,7 +116,7 @@ In this task, you will validate the SSH configuration and restart the SSH servic
 
 4. Confirm that root SSH login is disabled and that key-based authentication is enforced.
 
-<validation step="Secure SSH access"/>
+<validation step="0b014e67-37d1-4b36-9f6c-05e3c9bf6525"/>
 
 ## Evaluation Criteria
 
