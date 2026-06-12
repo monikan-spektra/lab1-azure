@@ -73,8 +73,6 @@ After completing this exercise, you will be able to:
 6. Wait for the deployment to complete successfully.
 7. Record the public IP address returned by the deployment output.
 
-<validation step="Ubuntu VM"/>
-
 ### Task 2: Configure HTTP access and install Apache
 
 1. In Cloud Shell, open TCP port 80 for the Ubuntu VM:
@@ -104,8 +102,6 @@ After completing this exercise, you will be able to:
    ```bash
    apache2 -v
    ```
-
-<validation step="HTTP Access"/>
 
 ### Task 3: Start Apache and verify the default web page
 
@@ -137,7 +133,7 @@ After completing this exercise, you will be able to:
 
 <question>
 
-<validation step="Apache Web Server"/>
+<validation step="ed5bdf6a-341c-4c8b-b94b-682adf0acff5"/>
 
 ## Evaluation Criteria
 
