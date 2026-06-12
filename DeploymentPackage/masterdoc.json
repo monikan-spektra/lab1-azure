@@ -1,0 +1,13 @@
+[
+  {
+    "Name": "Lab-1:Azure ,Powershell,Ansible ,windows and Linux",
+    "Language": "English",
+    "Files": [
+      { "RawFilePath": "https://raw.githubusercontent.com/monikan-spektra/lab1-azure/main/LabGuidePackage/Lab%20Guide/Lab%20Guide/GettingStarted-V2.md", "Order": 1 },
+      { "RawFilePath": "https://raw.githubusercontent.com/monikan-spektra/lab1-azure/main/LabGuidePackage/Lab%20Guide/Lab%20Guide/Exercise-01.md", "Order": 2 },
+      { "RawFilePath": "https://raw.githubusercontent.com/monikan-spektra/lab1-azure/main/LabGuidePackage/Lab%20Guide/Lab%20Guide/Exercise-02.md", "Order": 3 },
+      { "RawFilePath": "https://raw.githubusercontent.com/monikan-spektra/lab1-azure/main/LabGuidePackage/Lab%20Guide/Lab%20Guide/Exercise-03.md", "Order": 4 },
+      { "RawFilePath": "https://raw.githubusercontent.com/monikan-spektra/lab1-azure/main/LabGuidePackage/Lab%20Guide/Lab%20Guide/Exercise-04.md", "Order": 5 }
+    ]
+  }
+]
