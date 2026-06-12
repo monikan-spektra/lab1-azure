@@ -89,7 +89,7 @@ Use the deployment identifier **<inject key="DeploymentID" enableCopy="false"/>*
 4. Review the deployment details and confirm that the required resources were created.
 5. Verify that the virtual network, subnet, network security resources, and Windows virtual machine show a successful provisioning state.
 
-<validation step="Deploy infrastructure using ARM template"/>
+<validation step="62edf637-0ffb-4e67-9fc4-bad938dbdaa2"/>
 
 ## Evaluation Criteria
 
