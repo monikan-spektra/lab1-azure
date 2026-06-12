@@ -1,0 +1,78 @@
+{
+  "properties": {
+    "displayName": "Lab1 Sandbox Policy",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "Sandbox guardrails for Lab1 Azure, PowerShell, Windows and Linux. Allows the required ARM template, VM, network, and web server tasks while denying unsupported or high-cost configurations.",
+    "parameters": {
+      "allowedLocations": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed locations",
+          "description": "Locations where lab resources may be deployed."
+        },
+        "defaultValue": [
+          "eastus",
+          "eastus2",
+          "centralus",
+          "southcentralus",
+          "westus2"
+        ]
+      },
+      "allowedVmSkus": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed VM SKUs",
+          "description": "Small B-series VM sizes permitted for the lab."
+        },
+        "defaultValue": [
+          "Standard_B1s",
+          "Standard_B1ms",
+          "Standard_B2s",
+          "Standard_B2ms"
+        ]
+      }
+    },
+    "policyRule": {
+      "if": {
+        "anyOf": [
+          {
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "Microsoft.Compute/virtualMachines"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/sku.name",
+                "notIn": "[parameters('allowedVmSkus')]"
+              }
+            ]
+          },
+          {
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "Microsoft.Storage/storageAccounts"
+              },
+              {
+                "not": {
+                  "field": "Microsoft.Storage/storageAccounts/sku.name",
+                  "like": "Standard_LRS"
+                }
+              }
+            ]
+          },
+          {
+            "not": {
+              "field": "location",
+              "in": "[parameters('allowedLocations')]"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "deny"
+      }
+    }
+  }
+}
