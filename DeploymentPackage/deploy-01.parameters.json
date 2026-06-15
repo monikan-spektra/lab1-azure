@@ -2,9 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "CloudLabsDeploymentID": {
-      "value": "GET-DEPLOYMENT-ID"
-    },
     "azureUserName": {
       "value": "GET-AZUSER-UPN"
     },
@@ -17,10 +14,25 @@
     "DeploymentID": {
       "value": "GET-DEPLOYMENT-ID"
     },
-    "VMUserName": {
+    "CloudLabsDeploymentID": {
+      "value": "GET-DEPLOYMENT-ID"
+    },
+    "adminUsername": {
+      "value": "azureuser"
+    },
+    "adminPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "trainerUserName": {
+      "value": "instructor"
+    },
+    "trainerUserPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "WindowsVMUserName": {
       "value": "Labuser"
     },
-    "VMPassword": {
+    "WindowsVMPassword": {
       "value": "GEN-PASSWORD"
     }
   }
