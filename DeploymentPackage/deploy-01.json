@@ -1,342 +1,241 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "CloudLabsDeploymentID": {
-      "type": "string",
-      "metadata": { "description": "Will fetch the Deployment ID" }
+    "$schema": "http://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUsername": { "type": "String" },
+        "adminPassword": { "type": "SecureString" },
+        "AzureUserName": { "type": "String" },
+        "AzurePassword": { "type": "SecureString" },
+        "ODLID": { "type": "String" },
+        "DeploymentID": { "type": "String" },
+        "trainerUserName": { "type": "String" },
+        "trainerUserPassword": { "type": "String" },
+        "pgReplicationPassword": {
+            "type": "SecureString",
+            "defaultValue": "Repl@PgUser2026!",
+            "metadata": { "description": "Password set on the PostgreSQL repl_user role on the primary. Surfaced as a portal output so candidate can use it during pg_basebackup." }
+        }
     },
-    "azureUserName": { "type": "string" },
-    "azurePassword": { "type": "securestring" },
-    "ODLID": { "type": "string" },
-    "DeploymentID": { "type": "string" },
-    "adminUsername": {
-      "type": "string",
-      "defaultValue": "azureuser",
-      "metadata": { "description": "Accepted for platform compatibility." }
+    "variables": {
+        "linuxSetupArgs": "[concat(' -azure_user ', parameters('AzureUserName'), ' -azure_password ', parameters('AzurePassword'), ' -odl_id ', parameters('ODLID'), ' -deployment_id ', parameters('DeploymentID'), ' -admin_user ', parameters('adminUsername'), ' -trainer_user ', parameters('trainerUserName'), ' -trainer_password ', parameters('trainerUserPassword'), ' -repl_password ', parameters('pgReplicationPassword'))]",
+        "AzureSubscriptionID": "[subscription().subscriptionId]",
+        "AzureTenantID": "[subscription().tenantId]",
+        "location": "[resourceGroup().location]",
+        "primaryVmName": "[concat('pg-primary-', parameters('DeploymentID'))]",
+        "replicaVmName": "[concat('pg-replica-', parameters('DeploymentID'))]",
+        "primaryNicName": "[concat(variables('primaryVmName'), '-nic')]",
+        "replicaNicName": "[concat(variables('replicaVmName'), '-nic')]",
+        "primaryPipName": "[concat('pgprimaryip', uniqueString(resourceGroup().id))]",
+        "replicaPipName": "[concat('pgreplicaip', uniqueString(resourceGroup().id, 'r'))]",
+        "primaryDataDiskName": "[concat(variables('primaryVmName'), '-pgdata')]",
+        "replicaDataDiskName": "[concat(variables('replicaVmName'), '-pgdata')]",
+        "networkSecurityGroupName": "nsg",
+        "virtualNetworkName": "vnet",
+        "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+        "subnetRef": "[concat(variables('vnetID'),'/subnets/','subnet')]",
+        "primaryPrivateIp": "10.10.1.4",
+        "replicaPrivateIp": "10.10.1.5",
+        "setupScriptUrl": "https://experienceazure.blob.core.windows.net/templates/mckinsey/a9-postgresql-ha/setup-jumpvm.sh",
+        "seedScriptUrl": "https://experienceazure.blob.core.windows.net/templates/mckinsey/a9-postgresql-ha/seed-state.sh"
     },
-    "adminPassword": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": { "description": "Accepted for platform compatibility." }
-    },
-    "trainerUserName": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": { "description": "Accepted for platform compatibility." }
-    },
-    "trainerUserPassword": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": { "description": "Accepted for platform compatibility." }
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]"
-    },
-    "VPCCIDR": { "type": "string", "defaultValue": "10.0.0.0/16" },
-    "EC2InstancesSubnetCIDR": { "type": "string", "defaultValue": "10.0.1.0/24" },
-    "clgclusterSubnetCidr": { "type": "string", "defaultValue": "10.0.2.0/24" },
-    "cgWhitelist": { "type": "string", "defaultValue": "0.0.0.0/0" },
-    "WindowsVMUserName": { "type": "string", "defaultValue": "Labuser" },
-    "WindowsVMPassword": { "type": "securestring" },
-    "vmSize": { "type": "string", "defaultValue": "Standard_D2s_v3" }
-  },
-  "variables": {
-    "virtualNetworkName": "[concat('EC2InstancesVPC-', parameters('CloudLabsDeploymentID'))]",
-    "vmSubnetName": "EC2InstanceSubnet",
-    "clgClusterSubnetName": "clgClusterSubnet",
-    "vmNsgName": "[concat('EC2InstancesVPCRDP-', parameters('CloudLabsDeploymentID'))]",
-    "clgNsgName": "[concat('clgSg-', parameters('CloudLabsDeploymentID'))]",
-    "vmPublicIpName": "[concat('labvm-pip-', parameters('CloudLabsDeploymentID'))]",
-    "vmNicName": "[concat('labvm-nic-', parameters('CloudLabsDeploymentID'))]",
-    "vmName": "[concat('labvm-', parameters('CloudLabsDeploymentID'))]",
-    "vmOsDiskName": "[concat('labvm-osdisk-', parameters('CloudLabsDeploymentID'))]",
-    "containerGroupName": "[concat('clg-containergroup-', parameters('CloudLabsDeploymentID'))]"
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2023-09-01",
-      "name": "[variables('vmNsgName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "Allow-RDP-Inbound",
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2024-05-01",
+            "name": "[variables('networkSecurityGroupName')]",
+            "location": "[resourceGroup().location]",
             "properties": {
-              "priority": 1000, "direction": "Inbound", "access": "Allow",
-              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "3389",
-              "sourceAddressPrefix": "[parameters('cgWhitelist')]", "destinationAddressPrefix": "*"
+                "securityRules": [
+                    { "name": "allow-ssh", "properties": { "priority": 1000, "protocol": "TCP", "access": "Allow", "direction": "Inbound", "sourceAddressPrefix": "*", "sourcePortRange": "*", "destinationAddressPrefix": "*", "destinationPortRange": "22" } },
+                    { "name": "allow-postgres-vnet", "properties": { "priority": 1100, "protocol": "TCP", "access": "Allow", "direction": "Inbound", "sourceAddressPrefix": "10.10.0.0/16", "sourcePortRange": "*", "destinationAddressPrefix": "*", "destinationPortRange": "5432" } },
+                    { "name": "allow-pgbouncer-vnet", "properties": { "priority": 1110, "protocol": "TCP", "access": "Allow", "direction": "Inbound", "sourceAddressPrefix": "10.10.0.0/16", "sourcePortRange": "*", "destinationAddressPrefix": "*", "destinationPortRange": "6432" } },
+                    { "name": "deny-postgres-internet", "properties": { "priority": 4000, "protocol": "TCP", "access": "Deny", "direction": "Inbound", "sourceAddressPrefix": "Internet", "sourcePortRange": "*", "destinationAddressPrefix": "*", "destinationPortRange": "5432" } }
+                ]
             }
-          },
-          {
-            "name": "Allow-HTTP-Inbound",
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2024-05-01",
+            "name": "[variables('virtualNetworkName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [ "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]" ],
             "properties": {
-              "priority": 1100, "direction": "Inbound", "access": "Allow",
-              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "80",
-              "sourceAddressPrefix": "[parameters('cgWhitelist')]", "destinationAddressPrefix": "*"
+                "addressSpace": { "addressPrefixes": [ "10.10.0.0/16" ] },
+                "subnets": [
+                    { "name": "subnet", "properties": { "addressPrefix": "10.10.1.0/24", "networkSecurityGroup": { "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]" } } }
+                ]
             }
-          },
-          {
-            "name": "Allow-HTTPS-Inbound",
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-05-01",
+            "name": "[variables('primaryPipName')]",
+            "location": "[resourceGroup().location]",
+            "tags": { "displayName": "PG Primary Public IP" },
+            "sku": { "name": "Standard" },
+            "properties": { "publicIPAllocationMethod": "Static", "dnsSettings": { "domainNameLabel": "[variables('primaryPipName')]" } }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-05-01",
+            "name": "[variables('replicaPipName')]",
+            "location": "[resourceGroup().location]",
+            "tags": { "displayName": "PG Replica Public IP" },
+            "sku": { "name": "Standard" },
+            "properties": { "publicIPAllocationMethod": "Static", "dnsSettings": { "domainNameLabel": "[variables('replicaPipName')]" } }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2024-05-01",
+            "name": "[variables('primaryNicName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('primaryPipName'))]"
+            ],
             "properties": {
-              "priority": 1200, "direction": "Inbound", "access": "Allow",
-              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "443",
-              "sourceAddressPrefix": "[parameters('cgWhitelist')]", "destinationAddressPrefix": "*"
+                "ipConfigurations": [
+                    { "name": "ipconfig1", "properties": { "subnet": { "id": "[variables('subnetRef')]" }, "privateIPAllocationMethod": "Static", "privateIPAddress": "[variables('primaryPrivateIp')]", "publicIpAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('primaryPipName'))]" } } }
+                ]
             }
-          },
-          {
-            "name": "Allow-All-ClusterSubnet-Inbound",
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2024-05-01",
+            "name": "[variables('replicaNicName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('replicaPipName'))]"
+            ],
             "properties": {
-              "priority": 1300, "direction": "Inbound", "access": "Allow",
-              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "*",
-              "sourceAddressPrefix": "[parameters('clgclusterSubnetCidr')]", "destinationAddressPrefix": "*"
+                "ipConfigurations": [
+                    { "name": "ipconfig1", "properties": { "subnet": { "id": "[variables('subnetRef')]" }, "privateIPAllocationMethod": "Static", "privateIPAddress": "[variables('replicaPrivateIp')]", "publicIpAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('replicaPipName'))]" } } }
+                ]
             }
-          },
-          {
-            "name": "Allow-All-VMSubnet-Inbound",
+        },
+        {
+            "type": "Microsoft.Compute/disks",
+            "apiVersion": "2024-03-02",
+            "name": "[variables('primaryDataDiskName')]",
+            "location": "[resourceGroup().location]",
+            "sku": { "name": "Premium_LRS" },
+            "properties": { "creationData": { "createOption": "Empty" }, "diskSizeGB": 256 }
+        },
+        {
+            "type": "Microsoft.Compute/disks",
+            "apiVersion": "2024-03-02",
+            "name": "[variables('replicaDataDiskName')]",
+            "location": "[resourceGroup().location]",
+            "sku": { "name": "Premium_LRS" },
+            "properties": { "creationData": { "createOption": "Empty" }, "diskSizeGB": 256 }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-11-01",
+            "name": "[variables('primaryVmName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('primaryNicName'))]",
+                "[concat('Microsoft.Compute/disks/', variables('primaryDataDiskName'))]"
+            ],
             "properties": {
-              "priority": 1400, "direction": "Inbound", "access": "Allow",
-              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "*",
-              "sourceAddressPrefix": "[parameters('EC2InstancesSubnetCIDR')]", "destinationAddressPrefix": "*"
-            }
-          },
-          {
-            "name": "Allow-All-Whitelist-Inbound",
-            "properties": {
-              "priority": 1500, "direction": "Inbound", "access": "Allow",
-              "protocol": "*", "sourcePortRange": "*", "destinationPortRange": "*",
-              "sourceAddressPrefix": "[parameters('cgWhitelist')]", "destinationAddressPrefix": "*"
-            }
-          },
-          {
-            "name": "Allow-All-Outbound",
-            "properties": {
-              "priority": 100, "direction": "Outbound", "access": "Allow",
-              "protocol": "*", "sourcePortRange": "*", "destinationPortRange": "*",
-              "sourceAddressPrefix": "*", "destinationAddressPrefix": "*"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2023-09-01",
-      "name": "[variables('clgNsgName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "Allow-HTTPS-Inbound",
-            "properties": {
-              "priority": 1000, "direction": "Inbound", "access": "Allow",
-              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "443",
-              "sourceAddressPrefix": "0.0.0.0/0", "destinationAddressPrefix": "*"
-            }
-          },
-          {
-            "name": "Allow-All-Outbound",
-            "properties": {
-              "priority": 100, "direction": "Outbound", "access": "Allow",
-              "protocol": "*", "sourcePortRange": "*", "destinationPortRange": "*",
-              "sourceAddressPrefix": "*", "destinationAddressPrefix": "*"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2023-09-01",
-      "name": "[variables('virtualNetworkName')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmNsgName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('clgNsgName'))]"
-      ],
-      "properties": {
-        "addressSpace": { "addressPrefixes": [ "[parameters('VPCCIDR')]" ] },
-        "subnets": [
-          {
-            "name": "[variables('vmSubnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('EC2InstancesSubnetCIDR')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmNsgName'))]"
-              }
-            }
-          },
-          {
-            "name": "[variables('clgClusterSubnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('clgclusterSubnetCidr')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('clgNsgName'))]"
-              },
-              "delegations": [
+                "osProfile": {
+                    "computerName": "[variables('primaryVmName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "linuxConfiguration": { "disablePasswordAuthentication": false, "provisionVMAgent": true }
+                },
+                "hardwareProfile": { "vmSize": "Standard_D2s_v3" },
+                "storageProfile": {
+                    "imageReference": { "publisher": "Canonical", "offer": "0001-com-ubuntu-server-jammy", "sku": "22_04-lts-gen2", "version": "latest" },
+                    "osDisk": { "createOption": "fromImage", "diskSizeGB": 64, "managedDisk": { "storageAccountType": "Standard_LRS" } },
+                    "dataDisks": [ { "lun": 0, "name": "[variables('primaryDataDiskName')]", "createOption": "Attach", "caching": "ReadWrite", "managedDisk": { "id": "[resourceId('Microsoft.Compute/disks', variables('primaryDataDiskName'))]" } } ]
+                },
+                "networkProfile": { "networkInterfaces": [ { "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('primaryNicName'))]" } ] }
+            },
+            "resources": [
                 {
-                  "name": "aciDelegation",
-                  "properties": { "serviceName": "Microsoft.ContainerInstance/containerGroups" }
+                    "type": "extensions",
+                    "apiVersion": "2024-11-01",
+                    "name": "linuxCustomScript",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [ "[concat('Microsoft.Compute/virtualMachines/', variables('primaryVmName'))]" ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Extensions",
+                        "type": "CustomScript",
+                        "typeHandlerVersion": "2.1",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": { "fileUris": [ "[variables('setupScriptUrl')]", "[variables('seedScriptUrl')]" ] },
+                        "protectedSettings": { "commandToExecute": "[concat('bash setup-jumpvm.sh -role primary', variables('linuxSetupArgs'))]" }
+                    }
                 }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2023-09-01",
-      "name": "[variables('vmPublicIpName')]",
-      "location": "[parameters('location')]",
-      "sku": { "name": "Standard" },
-      "properties": {
-        "publicIPAllocationMethod": "Static",
-        "publicIPAddressVersion": "IPv4",
-        "dnsSettings": {
-          "domainNameLabel": "[toLower(concat('labvm-', uniqueString(resourceGroup().id, parameters('DeploymentID'))))]"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2023-09-01",
-      "name": "[variables('vmNicName')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "10.0.1.10",
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('vmSubnetName'))]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2023-09-01",
-      "name": "[variables('vmName')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
-      ],
-      "properties": {
-        "hardwareProfile": { "vmSize": "[parameters('vmSize')]" },
-        "osProfile": {
-          "computerName": "labvm",
-          "adminUsername": "[parameters('WindowsVMUserName')]",
-          "adminPassword": "[parameters('WindowsVMPassword')]",
-          "windowsConfiguration": {
-            "provisionVMAgent": true,
-            "enableAutomaticUpdates": false
-          }
+            ]
         },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "MicrosoftWindowsServer",
-            "offer": "WindowsServer",
-            "sku": "2022-datacenter-azure-edition",
-            "version": "latest"
-          },
-          "osDisk": {
-            "name": "[variables('vmOsDiskName')]",
-            "createOption": "FromImage",
-            "diskSizeGB": 127,
-            "managedDisk": { "storageAccountType": "Premium_LRS" }
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            { "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]" }
-          ]
-        }
-      }
-    },
-    {
-      "type": "Microsoft.ContainerInstance/containerGroups",
-      "apiVersion": "2023-05-01",
-      "name": "[variables('containerGroupName')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-      ],
-      "properties": {
-        "sku": "Standard",
-        "subnetIds": [
-          {
-            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('clgClusterSubnetName'))]"
-          }
-        ],
-        "containers": [
-          {
-            "name": "clg-rdp-container",
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-11-01",
+            "name": "[variables('replicaVmName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('replicaNicName'))]",
+                "[concat('Microsoft.Compute/disks/', variables('replicaDataDiskName'))]",
+                "[concat('Microsoft.Compute/virtualMachines/', variables('primaryVmName'))]"
+            ],
             "properties": {
-              "image": "mcr.microsoft.com/azure-cli:latest",
-              "resources": { "requests": { "cpu": 1, "memoryInGB": 2 } },
-              "ports": [ { "protocol": "TCP", "port": 443 } ]
-            }
-          }
-        ],
-        "osType": "Linux",
-        "restartPolicy": "Always",
-        "ipAddress": {
-          "type": "Private",
-          "ports": [ { "protocol": "TCP", "port": 443 } ]
+                "osProfile": {
+                    "computerName": "[variables('replicaVmName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "linuxConfiguration": { "disablePasswordAuthentication": false, "provisionVMAgent": true }
+                },
+                "hardwareProfile": { "vmSize": "Standard_D2s_v3" },
+                "storageProfile": {
+                    "imageReference": { "publisher": "Canonical", "offer": "0001-com-ubuntu-server-jammy", "sku": "22_04-lts-gen2", "version": "latest" },
+                    "osDisk": { "createOption": "fromImage", "diskSizeGB": 64, "managedDisk": { "storageAccountType": "Standard_LRS" } },
+                    "dataDisks": [ { "lun": 0, "name": "[variables('replicaDataDiskName')]", "createOption": "Attach", "caching": "ReadWrite", "managedDisk": { "id": "[resourceId('Microsoft.Compute/disks', variables('replicaDataDiskName'))]" } } ]
+                },
+                "networkProfile": { "networkInterfaces": [ { "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('replicaNicName'))]" } ] }
+            },
+            "resources": [
+                {
+                    "type": "extensions",
+                    "apiVersion": "2024-11-01",
+                    "name": "linuxCustomScript",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [ "[concat('Microsoft.Compute/virtualMachines/', variables('replicaVmName'))]" ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Extensions",
+                        "type": "CustomScript",
+                        "typeHandlerVersion": "2.1",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": { "fileUris": [ "[variables('setupScriptUrl')]", "[variables('seedScriptUrl')]" ] },
+                        "protectedSettings": { "commandToExecute": "[concat('bash setup-jumpvm.sh -role replica', variables('linuxSetupArgs'))]" }
+                    }
+                }
+            ]
         }
-      }
+    ],
+    "outputs": {
+        "DeploymentID": { "type": "String", "value": "[parameters('DeploymentID')]" },
+        "region": { "type": "string", "value": "[variables('location')]" },
+        "VM Admin Username": { "type": "String", "value": "[parameters('adminUsername')]" },
+        "VM Admin Password": { "type": "String", "value": "[parameters('adminPassword')]" },
+        "Primary VM Name": { "type": "String", "value": "[variables('primaryVmName')]" },
+        "Replica VM Name": { "type": "String", "value": "[variables('replicaVmName')]" },
+        "Primary Public IP": { "type": "String", "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('primaryPipName'))).ipAddress]" },
+        "Replica Public IP": { "type": "String", "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('replicaPipName'))).ipAddress]" },
+        "Primary VM DNS Name": { "type": "String", "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('primaryPipName'))).dnsSettings.fqdn]" },
+        "Replica VM DNS Name": { "type": "String", "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('replicaPipName'))).dnsSettings.fqdn]" },
+        "Primary Private IP": { "type": "String", "value": "[variables('primaryPrivateIp')]" },
+        "Replica Private IP": { "type": "String", "value": "[variables('replicaPrivateIp')]" },
+        "Primary SSH Command": { "type": "String", "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(resourceId('Microsoft.Network/publicIPAddresses', variables('primaryPipName'))).dnsSettings.fqdn)]" },
+        "Replica SSH Command": { "type": "String", "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(resourceId('Microsoft.Network/publicIPAddresses', variables('replicaPipName'))).dnsSettings.fqdn)]" },
+        "Sample Database": { "type": "String", "value": "mckdb" },
+        "PgBench Scale Factor": { "type": "String", "value": "100" },
+        "Replication User": { "type": "String", "value": "repl_user" },
+        "Replication User Password": { "type": "String", "value": "[parameters('pgReplicationPassword')]" },
+        "Trainer Username": { "type": "String", "value": "[parameters('trainerUserName')]" },
+        "Trainer Password": { "type": "String", "value": "[parameters('trainerUserPassword')]" }
     }
-  ],
-  "outputs": {
-    "VpcId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-    },
-    "WindowsVMDNSName": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))).dnsSettings.fqdn]"
-    },
-    "WindowsVMPublicIp": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))).ipAddress]"
-    },
-    "WindowsVMPrivateIp": {
-      "type": "string",
-      "value": "10.0.1.10"
-    },
-    "WindowsVMUserName": {
-      "type": "string",
-      "value": "[parameters('WindowsVMUserName')]"
-    },
-    "WindowsVMPassword": {
-      "type": "securestring",
-      "value": "[parameters('WindowsVMPassword')]"
-    },
-    "clusterSubnetId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('clgClusterSubnetName'))]"
-    },
-    "clusterSecurityGroupId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('clgNsgName'))]"
-    },
-    "WindowsVMName": {
-      "type": "string",
-      "value": "[variables('vmName')]"
-    }
-  }
 }
