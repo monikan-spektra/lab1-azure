@@ -4,169 +4,43 @@
   "parameters": {
     "CloudLabsDeploymentID": {
       "type": "string",
-      "metadata": {
-        "description": "Will fetch the Deployment ID"
-      }
+      "metadata": { "description": "Will fetch the Deployment ID" }
     },
-    "azureUserName": {
-      "type": "string"
-    },
-    "azurePassword": {
-      "type": "securestring"
-    },
-    "ODLID": {
-      "type": "string"
-    },
-    "DeploymentID": {
-      "type": "string"
-    },
+    "azureUserName": { "type": "string" },
+    "azurePassword": { "type": "securestring" },
+    "ODLID": { "type": "string" },
+    "DeploymentID": { "type": "string" },
     "adminUsername": {
       "type": "string",
       "defaultValue": "azureuser",
-      "metadata": {
-        "description": "Accepted for platform compatibility."
-      }
+      "metadata": { "description": "Accepted for platform compatibility." }
     },
     "adminPassword": {
       "type": "securestring",
       "defaultValue": "",
-      "metadata": {
-        "description": "Accepted for platform compatibility."
-      }
+      "metadata": { "description": "Accepted for platform compatibility." }
     },
     "trainerUserName": {
       "type": "string",
       "defaultValue": "",
-      "metadata": {
-        "description": "Accepted for platform compatibility."
-      }
+      "metadata": { "description": "Accepted for platform compatibility." }
     },
     "trainerUserPassword": {
       "type": "string",
       "defaultValue": "",
-      "metadata": {
-        "description": "Accepted for platform compatibility."
-      }
+      "metadata": { "description": "Accepted for platform compatibility." }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "metadata": {
-        "description": "Azure region for all deployed resources."
-      }
+      "defaultValue": "[resourceGroup().location]"
     },
-    "VPCCIDR": {
-      "type": "string",
-      "defaultValue": "10.0.0.0/16",
-      "metadata": {
-        "description": "Address space for the Virtual Network (equivalent to VPC CIDR)."
-      }
-    },
-    "EC2InstancesSubnetCIDR": {
-      "type": "string",
-      "defaultValue": "10.0.1.0/24",
-      "metadata": {
-        "description": "Address prefix for the VM subnet."
-      }
-    },
-    "clgclusterSubnetCidr": {
-      "type": "string",
-      "defaultValue": "10.0.2.0/24",
-      "metadata": {
-        "description": "Address prefix for the container/cluster subnet."
-      }
-    },
-    "cgWhitelist": {
-      "type": "string",
-      "defaultValue": "0.0.0.0/0",
-      "metadata": {
-        "description": "Whitelisted CIDR for inbound access."
-      }
-    },
-    "WindowsVMUserName": {
-      "type": "string",
-      "defaultValue": "Labuser",
-      "metadata": {
-        "description": "Local user to create on the Windows VM."
-      }
-    },
-    "WindowsVMPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Password for the Windows VM local user and admin."
-      }
-    },
-    "vmSize": {
-      "type": "string",
-      "defaultValue": "Standard_D2s_v3",
-      "metadata": {
-        "description": "VM size (equivalent to r7a.large — 2 vCPU, 16GB RAM)."
-      }
-    },
-    "AppEnabled": {
-      "type": "string",
-      "defaultValue": "True"
-    },
-    "ShutdownOnIdle": {
-      "type": "string",
-      "defaultValue": "True"
-    },
-    "ShutdownOnIdleTimeout": {
-      "type": "int",
-      "defaultValue": 15
-    },
-    "WarningWaitTimeout": {
-      "type": "int",
-      "defaultValue": 15
-    },
-    "TrackingMode": {
-      "type": "int",
-      "defaultValue": 1
-    },
-    "ShutdownOnDisconnect": {
-      "type": "string",
-      "defaultValue": "True"
-    },
-    "ShutdownOnDisconnectTimeout": {
-      "type": "int",
-      "defaultValue": 15
-    },
-    "ShutdownWhenNoUsersConnected": {
-      "type": "string",
-      "defaultValue": "True"
-    },
-    "ShutdownWhenNoUsersConnectedTimeout": {
-      "type": "int",
-      "defaultValue": 15
-    },
-    "WindowsIdletrackingInstallationScriptUrl": {
-      "type": "string",
-      "defaultValue": "WindowsIdletrackingInstallationScriptUrl"
-    },
-    "WindowsIdlecheckFeatureConnectionString": {
-      "type": "string",
-      "defaultValue": "WindowsIdlecheckFeatureConnectionString"
-    },
-    "OdlTrackingSource": {
-      "type": "int",
-      "defaultValue": 3
-    },
-    "AppPopupWaitTimeout": {
-      "type": "int",
-      "defaultValue": 10
-    },
-    "Version": {
-      "type": "string",
-      "defaultValue": "Version"
-    },
-    "AppCheckFrequency": {
-      "type": "int",
-      "defaultValue": 2
-    },
-    "CloudLabsDeploymentIDEncrypt": {
-      "type": "string",
-      "defaultValue": "CloudLabsDeploymentIDEncrypt"
-    }
+    "VPCCIDR": { "type": "string", "defaultValue": "10.0.0.0/16" },
+    "EC2InstancesSubnetCIDR": { "type": "string", "defaultValue": "10.0.1.0/24" },
+    "clgclusterSubnetCidr": { "type": "string", "defaultValue": "10.0.2.0/24" },
+    "cgWhitelist": { "type": "string", "defaultValue": "0.0.0.0/0" },
+    "WindowsVMUserName": { "type": "string", "defaultValue": "Labuser" },
+    "WindowsVMPassword": { "type": "securestring" },
+    "vmSize": { "type": "string", "defaultValue": "Standard_D2s_v3" }
   },
   "variables": {
     "virtualNetworkName": "[concat('EC2InstancesVPC-', parameters('CloudLabsDeploymentID'))]",
@@ -181,9 +55,7 @@
     "containerGroupName": "[concat('clg-containergroup-', parameters('CloudLabsDeploymentID'))]"
   },
   "resources": [
-
     {
-      "comments": "NSG for VM subnet - mirrors EC2InstancesVPCRDP security group (RDP, HTTP, HTTPS, all egress)",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2023-09-01",
       "name": "[variables('vmNsgName')]",
@@ -193,100 +65,63 @@
           {
             "name": "Allow-RDP-Inbound",
             "properties": {
-              "priority": 1000,
-              "direction": "Inbound",
-              "access": "Allow",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "3389",
-              "sourceAddressPrefix": "[parameters('cgWhitelist')]",
-              "destinationAddressPrefix": "*"
+              "priority": 1000, "direction": "Inbound", "access": "Allow",
+              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "3389",
+              "sourceAddressPrefix": "[parameters('cgWhitelist')]", "destinationAddressPrefix": "*"
             }
           },
           {
             "name": "Allow-HTTP-Inbound",
             "properties": {
-              "priority": 1100,
-              "direction": "Inbound",
-              "access": "Allow",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "80",
-              "sourceAddressPrefix": "[parameters('cgWhitelist')]",
-              "destinationAddressPrefix": "*"
+              "priority": 1100, "direction": "Inbound", "access": "Allow",
+              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "80",
+              "sourceAddressPrefix": "[parameters('cgWhitelist')]", "destinationAddressPrefix": "*"
             }
           },
           {
             "name": "Allow-HTTPS-Inbound",
             "properties": {
-              "priority": 1200,
-              "direction": "Inbound",
-              "access": "Allow",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "443",
-              "sourceAddressPrefix": "[parameters('cgWhitelist')]",
-              "destinationAddressPrefix": "*"
+              "priority": 1200, "direction": "Inbound", "access": "Allow",
+              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "443",
+              "sourceAddressPrefix": "[parameters('cgWhitelist')]", "destinationAddressPrefix": "*"
             }
           },
           {
             "name": "Allow-All-ClusterSubnet-Inbound",
             "properties": {
-              "priority": 1300,
-              "direction": "Inbound",
-              "access": "Allow",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "*",
-              "sourceAddressPrefix": "[parameters('clgclusterSubnetCidr')]",
-              "destinationAddressPrefix": "*"
+              "priority": 1300, "direction": "Inbound", "access": "Allow",
+              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "*",
+              "sourceAddressPrefix": "[parameters('clgclusterSubnetCidr')]", "destinationAddressPrefix": "*"
             }
           },
           {
             "name": "Allow-All-VMSubnet-Inbound",
             "properties": {
-              "priority": 1400,
-              "direction": "Inbound",
-              "access": "Allow",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "*",
-              "sourceAddressPrefix": "[parameters('EC2InstancesSubnetCIDR')]",
-              "destinationAddressPrefix": "*"
+              "priority": 1400, "direction": "Inbound", "access": "Allow",
+              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "*",
+              "sourceAddressPrefix": "[parameters('EC2InstancesSubnetCIDR')]", "destinationAddressPrefix": "*"
             }
           },
           {
             "name": "Allow-All-Whitelist-Inbound",
             "properties": {
-              "priority": 1500,
-              "direction": "Inbound",
-              "access": "Allow",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "*",
-              "sourceAddressPrefix": "[parameters('cgWhitelist')]",
-              "destinationAddressPrefix": "*"
+              "priority": 1500, "direction": "Inbound", "access": "Allow",
+              "protocol": "*", "sourcePortRange": "*", "destinationPortRange": "*",
+              "sourceAddressPrefix": "[parameters('cgWhitelist')]", "destinationAddressPrefix": "*"
             }
           },
           {
             "name": "Allow-All-Outbound",
             "properties": {
-              "priority": 100,
-              "direction": "Outbound",
-              "access": "Allow",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "*",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "[parameters('cgWhitelist')]"
+              "priority": 100, "direction": "Outbound", "access": "Allow",
+              "protocol": "*", "sourcePortRange": "*", "destinationPortRange": "*",
+              "sourceAddressPrefix": "*", "destinationAddressPrefix": "*"
             }
           }
         ]
       }
     },
-
     {
-      "comments": "NSG for cluster subnet - mirrors clgSg (HTTPS only inbound on port 443)",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2023-09-01",
       "name": "[variables('clgNsgName')]",
@@ -294,37 +129,25 @@
       "properties": {
         "securityRules": [
           {
-            "name": "Allow-HTTPS-Inbound-IPv4",
+            "name": "Allow-HTTPS-Inbound",
             "properties": {
-              "priority": 1000,
-              "direction": "Inbound",
-              "access": "Allow",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "443",
-              "sourceAddressPrefix": "0.0.0.0/0",
-              "destinationAddressPrefix": "*"
+              "priority": 1000, "direction": "Inbound", "access": "Allow",
+              "protocol": "Tcp", "sourcePortRange": "*", "destinationPortRange": "443",
+              "sourceAddressPrefix": "0.0.0.0/0", "destinationAddressPrefix": "*"
             }
           },
           {
             "name": "Allow-All-Outbound",
             "properties": {
-              "priority": 100,
-              "direction": "Outbound",
-              "access": "Allow",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "*",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*"
+              "priority": 100, "direction": "Outbound", "access": "Allow",
+              "protocol": "*", "sourcePortRange": "*", "destinationPortRange": "*",
+              "sourceAddressPrefix": "*", "destinationAddressPrefix": "*"
             }
           }
         ]
       }
     },
-
     {
-      "comments": "Virtual Network with VM subnet and cluster subnet (mirrors EC2InstancesVPC + subnets)",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2023-09-01",
       "name": "[variables('virtualNetworkName')]",
@@ -334,11 +157,7 @@
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('clgNsgName'))]"
       ],
       "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[parameters('VPCCIDR')]"
-          ]
-        },
+        "addressSpace": { "addressPrefixes": [ "[parameters('VPCCIDR')]" ] },
         "subnets": [
           {
             "name": "[variables('vmSubnetName')]",
@@ -359,9 +178,7 @@
               "delegations": [
                 {
                   "name": "aciDelegation",
-                  "properties": {
-                    "serviceName": "Microsoft.ContainerInstance/containerGroups"
-                  }
+                  "properties": { "serviceName": "Microsoft.ContainerInstance/containerGroups" }
                 }
               ]
             }
@@ -369,16 +186,12 @@
         ]
       }
     },
-
     {
-      "comments": "Static Public IP for the Windows lab VM",
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2023-09-01",
       "name": "[variables('vmPublicIpName')]",
       "location": "[parameters('location')]",
-      "sku": {
-        "name": "Standard"
-      },
+      "sku": { "name": "Standard" },
       "properties": {
         "publicIPAllocationMethod": "Static",
         "publicIPAddressVersion": "IPv4",
@@ -387,9 +200,7 @@
         }
       }
     },
-
     {
-      "comments": "NIC for the Windows lab VM with static private IP (mirrors PrivateIpAddress: 10.0.1.10)",
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2023-09-01",
       "name": "[variables('vmNicName')]",
@@ -416,9 +227,7 @@
         ]
       }
     },
-
     {
-      "comments": "Windows Server 2022 VM with 80GB OS disk (mirrors r7a.large + gp3 80GB EBS)",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2023-09-01",
       "name": "[variables('vmName')]",
@@ -427,9 +236,7 @@
         "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
       ],
       "properties": {
-        "hardwareProfile": {
-          "vmSize": "[parameters('vmSize')]"
-        },
+        "hardwareProfile": { "vmSize": "[parameters('vmSize')]" },
         "osProfile": {
           "computerName": "labvm",
           "adminUsername": "[parameters('WindowsVMUserName')]",
@@ -450,43 +257,17 @@
             "name": "[variables('vmOsDiskName')]",
             "createOption": "FromImage",
             "diskSizeGB": 127,
-            "managedDisk": {
-              "storageAccountType": "Premium_LRS"
-            }
+            "managedDisk": { "storageAccountType": "Premium_LRS" }
           }
         },
         "networkProfile": {
           "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
-            }
+            { "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]" }
           ]
         }
       }
     },
-
     {
-      "comments": "Custom Script Extension - mirrors EC2 UserData: creates local user, adds to RDP group, installs Chrome, runs idle tracking script",
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "2023-09-01",
-      "name": "[concat(variables('vmName'), '/CustomScriptExtension')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
-      ],
-      "properties": {
-        "publisher": "Microsoft.Compute",
-        "type": "CustomScriptExtension",
-        "typeHandlerVersion": "1.10",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -Command \"', 'Start-Transcript -Path C:\\Windows\\Logs\\userdata-logs.txt -Append; ', '$username = ''', parameters('WindowsVMUserName'), '''; ', '$password = ConvertTo-SecureString ''', parameters('WindowsVMPassword'), ''' -AsPlainText -Force; ', 'New-LocalUser -Name $username -Password $password -PasswordNeverExpires; ', 'Add-LocalGroupMember -Group Administrators -Member $username; ', 'Add-LocalGroupMember -Group \"\"Remote Desktop Users\"\" -Member $username; ', '$Path = $env:TEMP; $Installer = \"\"chrome_installer.exe\"\"; ', 'Invoke-WebRequest \"\"http://dl.google.com/chrome/install/375.126/chrome_installer.exe\"\" -OutFile $Path\\$Installer; ', 'Start-Process -FilePath $Path\\$Installer -ArgumentList \"\"/silent /install\"\" -Verb RunAs -Wait; ', '[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; ', 'Invoke-WebRequest ', parameters('WindowsIdletrackingInstallationScriptUrl'), ' -OutFile C:/WindowsIdleTrackingInstallationScripts.ps1; ', 'C:\\WindowsIdleTrackingInstallationScripts.ps1 ', parameters('WindowsIdlecheckFeatureConnectionString'), ' ', parameters('Version'), ' ', parameters('AppEnabled'), ' ', parameters('ShutdownOnIdle'), ' ', parameters('ShutdownOnIdleTimeout'), ' ', parameters('WarningWaitTimeout'), ' ', parameters('TrackingMode'), ' ', parameters('ShutdownOnDisconnect'), ' ', parameters('ShutdownOnDisconnectTimeout'), ' ', parameters('ShutdownWhenNoUsersConnected'), ' ', parameters('ShutdownWhenNoUsersConnectedTimeout'), ' ', parameters('AppCheckFrequency'), ' $InstanceID ', parameters('CloudLabsDeploymentIDEncrypt'), '; ', 'Remove-Item C:/WindowsIdleTrackingInstallationScripts.ps1 -Force; ', 'Stop-Transcript\"')]"
-        }
-      }
-    },
-
-    {
-      "comments": "Azure Container Instance in cluster subnet (equivalent to ECS Fargate task in clgClusterSubnet)",
       "type": "Microsoft.ContainerInstance/containerGroups",
       "apiVersion": "2023-05-01",
       "name": "[variables('containerGroupName')]",
@@ -506,18 +287,8 @@
             "name": "clg-rdp-container",
             "properties": {
               "image": "mcr.microsoft.com/azure-cli:latest",
-              "resources": {
-                "requests": {
-                  "cpu": 1,
-                  "memoryInGB": 2
-                }
-              },
-              "ports": [
-                {
-                  "protocol": "TCP",
-                  "port": 443
-                }
-              ]
+              "resources": { "requests": { "cpu": 1, "memoryInGB": 2 } },
+              "ports": [ { "protocol": "TCP", "port": 443 } ]
             }
           }
         ],
@@ -525,61 +296,46 @@
         "restartPolicy": "Always",
         "ipAddress": {
           "type": "Private",
-          "ports": [
-            {
-              "protocol": "TCP",
-              "port": 443
-            }
-          ]
+          "ports": [ { "protocol": "TCP", "port": 443 } ]
         }
       }
     }
-
   ],
   "outputs": {
     "VpcId": {
       "type": "string",
-      "description": "The ID of the Virtual Network",
       "value": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
     },
     "WindowsVMDNSName": {
       "type": "string",
-      "description": "Windows VM DNS name (FQDN)",
       "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))).dnsSettings.fqdn]"
     },
     "WindowsVMPublicIp": {
       "type": "string",
-      "description": "Public IP of the Windows VM",
       "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('vmPublicIpName'))).ipAddress]"
     },
     "WindowsVMPrivateIp": {
       "type": "string",
-      "description": "Private IP of the Windows VM",
       "value": "10.0.1.10"
     },
     "WindowsVMUserName": {
       "type": "string",
-      "description": "Windows VM Username",
       "value": "[parameters('WindowsVMUserName')]"
     },
     "WindowsVMPassword": {
       "type": "securestring",
-      "description": "Windows VM Password",
       "value": "[parameters('WindowsVMPassword')]"
     },
     "clusterSubnetId": {
       "type": "string",
-      "description": "The ID of the Cluster Subnet",
       "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('clgClusterSubnetName'))]"
     },
     "clusterSecurityGroupId": {
       "type": "string",
-      "description": "The NSG ID of the Cluster",
       "value": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('clgNsgName'))]"
     },
     "WindowsVMName": {
       "type": "string",
-      "description": "Name of the Windows VM",
       "value": "[variables('vmName')]"
     }
   }
