@@ -449,7 +449,7 @@
           "osDisk": {
             "name": "[variables('vmOsDiskName')]",
             "createOption": "FromImage",
-            "diskSizeGB": 80,
+            "diskSizeGB": 127,
             "managedDisk": {
               "storageAccountType": "Premium_LRS"
             }
