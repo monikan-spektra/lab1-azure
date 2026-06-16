@@ -58,17 +58,15 @@ After completing the task, hit the **Validate** button under the Validation tab 
 
    * **Email/Username:** <inject key="AzureAdUserEmail"></inject> **(1)**
 
-      ![](../images/signin.png)
+      ![](./images/lab1-5.png)
 
 1. Now enter the following password and click on **Sign in (2)**.
 
    * **Enter Temporary Access Pass:** <inject key="AzureAdUserPassword"></inject> **(1)**
 
-      ![](../images/pass.png)
+      ![](./images/lab1-7.png)
 
 1. If prompted to **Stay signed in?**, click **"No"**.
-
-   ![](../images/stay.png)
 
 ## Support Contact
 
