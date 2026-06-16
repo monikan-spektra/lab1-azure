@@ -40,11 +40,11 @@ Use the following credentials:
 
 | Field | Value |
 |---|---|
-| Username | `<inject key="AzureAdUserEmail"></inject>` |
-| Password | `<inject key="AzureAdUserPassword"></inject>` |
-| Subscription | `<inject key="SubscriptionID"></inject>` |
-| Tenant | `<inject key="TenantID"></inject>` |
-| Deployment ID | `<inject key="DeploymentID" enableCopy="false"/>` |
+| Username | `<inject key="AzureAdUserEmail" enableCopy="true"/>` |
+| Password | `<inject key="AzureAdUserPassword" enableCopy="true"/>` |
+| Subscription | `<inject key="SubscriptionID" enableCopy="true"/>` |
+| Tenant | `<inject key="TenantID" enableCopy="true"/>` |
+| Deployment ID | `<inject key="DeploymentID" enableCopy="true"/>` |
 
 > **Note:** Use the exact resource names specified in the exercise steps. Validation checks depend on those names and configuration values.
 
@@ -74,8 +74,8 @@ Sign in using:
 
 | Field | Value |
 |---|---|
-| Username | `<inject key="AzureAdUserEmail"></inject>` |
-| Password | `<inject key="AzureAdUserPassword"></inject>` |
+| Username | `<inject key="AzureAdUserEmail" enableCopy="true"/>` |
+| Password | `<inject key="AzureAdUserPassword" enableCopy="true"/>` |
 
 #### Step 2: Verify Subscription Context
 
@@ -83,8 +83,8 @@ After signing in, confirm that you are working in:
 
 | Field | Value |
 |---|---|
-| Subscription | `<inject key="SubscriptionID"></inject>` |
-| Tenant | `<inject key="TenantID"></inject>` |
+| Subscription | `<inject key="SubscriptionID" enableCopy="true"/>` |
+| Tenant | `<inject key="TenantID" enableCopy="true"/>` |
 
 #### Step 3: Create the Ubuntu Virtual Machine
 
@@ -95,7 +95,7 @@ After signing in, confirm that you are working in:
    | Setting | Value |
    |---|---|
    | Resource Group | `labuser-rg` |
-   | Virtual Machine Name | `ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>` |
+   | Virtual Machine Name | `ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>` |
    | Image | Ubuntu Server 22.04 LTS |
    | Size | Standard_B2s |
    | Authentication Type | SSH public key |
@@ -130,7 +130,7 @@ After signing in, confirm that you are working in:
 
 Your solution is successful when:
 
-- The Ubuntu virtual machine `ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>` is created.
+- The Ubuntu virtual machine `ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>` is created.
 - You have connected successfully to the VM via SSH.
 - You can execute administrative commands on the VM.
 
@@ -209,6 +209,8 @@ Your solution is successful when:
 
 In this task, you will validate the SSH configuration and restart the SSH service safely.
 
+<validation step="0b014e67-37d1-4b36-9f6c-05e3c9bf6525" />
+
 #### Step 1: Test the SSH Configuration Syntax
 
 1. Run the following command to validate the SSH daemon configuration:
@@ -239,8 +241,7 @@ In this task, you will validate the SSH configuration and restart the SSH servic
 
 Verify that root SSH login is disabled and that password-based authentication has been disabled.
 
-<validation step="0b014e67-37d1-4b36-9f6c-05e3c9bf6525"/>
-
+<validation step="29e38797-ef36-4be6-8a35-731e1f3d07f9" />
 #### Task 3 Success Criteria
 
 Your solution is successful when:
@@ -274,7 +275,7 @@ Your submission will be evaluated based on:
 
 You have successfully completed this exercise when:
 
-- You deployed the Ubuntu virtual machine named `ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>`.
+- You deployed the Ubuntu virtual machine named `ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>`.
 - You connected successfully to the Ubuntu VM.
 - Root login over SSH is disabled.
 - Key-based authentication is configured and available.
