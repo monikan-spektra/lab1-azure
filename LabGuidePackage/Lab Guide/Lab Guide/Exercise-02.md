@@ -189,8 +189,6 @@ Your solution is successful when:
 
 In this task, you will validate the SSH configuration and restart the SSH service safely.
 
-<validation step="0b014e67-37d1-4b36-9f6c-05e3c9bf6525" />
-
 #### Step 1: Test the SSH Configuration Syntax
 
 1. Run the following command to validate the SSH daemon configuration:
@@ -216,6 +214,8 @@ In this task, you will validate the SSH configuration and restart the SSH servic
    ```
 
 3. Confirm that the service status displays an active state.
+
+<validation step="0b014e67-37d1-4b36-9f6c-05e3c9bf6525" />
 
 #### Step 3: Verify Final Configuration
 
