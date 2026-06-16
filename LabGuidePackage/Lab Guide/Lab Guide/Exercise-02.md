@@ -241,7 +241,6 @@ In this task, you will validate the SSH configuration and restart the SSH servic
 
 Verify that root SSH login is disabled and that password-based authentication has been disabled.
 
-<validation step="29e38797-ef36-4be6-8a35-731e1f3d07f9" />
 #### Task 3 Success Criteria
 
 Your solution is successful when:
