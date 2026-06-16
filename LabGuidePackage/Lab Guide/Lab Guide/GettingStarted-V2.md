@@ -1,124 +1,84 @@
-# Getting Started with the Lab
+# Exercise 01: Deploy Infrastructure Using ARM Template
 
-### Estimated Duration: 15 Minutes
+### Duration: 90 Minutes
 
 ## Getting Started with the Lab
 
-Welcome to **Lab 1: Azure, PowerShell, Windows and Linux**.
+This lab is designed to demonstrate how organizations can deploy foundational Azure infrastructure using an Azure Resource Manager (ARM) template. In real-world enterprise environments, cloud operations teams are frequently required to provision virtual machines and networking resources in a consistent, repeatable, and automated manner. Using ARM templates ensures that resources are deployed according to defined standards and naming conventions, reducing manual effort and configuration drift.
 
-In this hands-on lab, you will work in an Azure environment to deploy and manage infrastructure by using an ARM template, PowerShell, and Linux administration tools. Throughout the lab, you will create core Azure resources, work with both Ubuntu and Windows virtual machines, secure SSH access on Linux, configure a web server, and automate virtual machine lifecycle operations.
+In this lab, you will deploy a complete Azure networking and compute environment into a resource group by applying a provided ARM template. You will create a Virtual Network, Network Security Group, Public IP Address, Network Interface, and a Windows Virtual Machine. By the end of the lab, you will have a fully provisioned Azure environment that demonstrates infrastructure-as-code deployment practices commonly used by cloud administrators and operations engineers.
 
-To access the Azure environment for this lab, sign in to the Azure portal at <https://portal.azure.com> by using the following credentials:
+## Accessing Your Lab Environment
 
-- **Username/Email:** `<inject key="AzureAdUserEmail"></inject>`
-- **Password:** `<inject key="AzureAdUserPassword"></inject>`
-- **Subscription:** `<inject key="SubscriptionID"></inject>`
-- **Tenant:** `<inject key="TenantID"></inject>`
+Once you're ready to dive in, your virtual machine and guide will be right at your fingertips within your web browser.
 
-Your deployment identifier for this lab is **<inject key="DeploymentID" enableCopy="false"></inject>**. Use the exact resource names provided in each exercise because validations will check for those names.
+## Virtual Machine & Lab Guide
 
-## Overview
+Your virtual machine is your workhorse throughout the workshop. The lab guide is your roadmap to success.
 
-In this lab, you will complete Azure administration tasks across infrastructure deployment, Linux hardening, web server configuration, and PowerShell-based virtual machine management.
-
-By the end of this lab, you will be able to:
-
-- Deploy Azure resources by using an ARM template and parameter file.
-- Provision and review Ubuntu and Windows virtual machines in Azure.
-- Secure SSH access on an Ubuntu virtual machine.
-- Configure Apache and validate HTTP access on Linux.
-- Use Azure PowerShell Az module cmdlets to stop and start virtual machines.
-
-## Important
-
-> [!Important]
-> - Use the **exact resource names** specified in the exercise instructions.
-> - Complete tasks in the order provided because later exercises depend on earlier deployments and configuration.
-> - Do not delete resources unless the instructions explicitly tell you to do so.
-> - If a step requires command-line work, carefully verify the target subscription and resource names before you run commands.
-
-## Access Information
-
-You will use the Azure lab environment provided for this exercise.
-
-1. Open a browser and go to <https://portal.azure.com>.
-2. Sign in with:
-   - **Username/Email:** `<inject key="AzureAdUserEmail"></inject>`
-   - **Password:** `<inject key="AzureAdUserPassword"></inject>`
-3. Confirm that the selected subscription is **`<inject key="SubscriptionID"></inject>`**.
-4. If prompted, confirm that the tenant context is **`<inject key="TenantID"></inject>`**.
-
-You may also use PowerShell during the lab for Azure administration tasks. When needed, ensure you are working against the correct Azure context before running commands.
+   ![](../images/vm.png)
 
 ## Exploring Your Lab Resources
 
-This lab focuses on Azure infrastructure and administration workflows. Depending on the exercise, you may interact with the following resource types:
+To get a better understanding of your lab resources and credentials, navigate to the **Environment** tab.
 
-- Azure Resource Groups
-- Virtual Network and Subnet resources
-- Network Security Group (NSG) rules
-- Ubuntu virtual machine for Linux administration tasks
-- Windows virtual machine for Windows administration tasks
-- ARM template and parameters file used for deployment
-- Azure PowerShell tools for VM power operations
-
-During the lab, review deployed resources in the Azure portal and verify that provisioning completes successfully before continuing.
-
-> [!Note]
-> If an exercise asks you to connect to the Ubuntu virtual machine, follow the instructions exactly for SSH access, key configuration, and service validation.
+   ![](../images/env.png)
 
 ## Utilizing the Split Window Feature
 
-To improve efficiency during the lab, you can use a split-screen layout.
+For convenience, you can open the lab guide in a separate window by selecting the **Split Window** button from the Top right corner.
 
-- Keep the lab guide open in one window or browser tab.
-- Keep the Azure portal open in another window or tab.
-- If you are using PowerShell or an SSH session, place it beside the lab guide so you can follow steps while entering commands.
-
-This setup makes it easier to reference instructions while you deploy resources, update configuration files, and validate your work.
+   ![](../images/split.png)
 
 ## Managing Your Virtual Machine
 
-Some exercises in this lab require you to work directly with virtual machines.
+Feel free to **Start, Restart,** or **Stop** your virtual machine as needed from the **Resources** tab. Your experience is in your hands!
 
-- Use the Azure portal to review VM status and networking details.
-- Use the provided instructions to connect to the Ubuntu VM when Linux configuration tasks are required.
-- Use Azure PowerShell Az module cmdlets when instructed to stop or start virtual machines.
-- Wait for provisioning or power-state changes to complete before moving on to the next step.
+   ![](../images/res.png)
 
-> [!Tip]
-> When managing virtual machines, always confirm that you are targeting the correct VM and resource group before making changes.
+## Lab Guide Zoom In/Zoom Out
+
+To adjust the zoom level for the environment page, click the **A↕: 100%** icon located next to the timer in the lab environment.
+
+   ![](../images/zoom.png)
 
 ## Lab Validation
 
-Validation is included to help confirm that required tasks were completed successfully.
+After completing the task, hit the **Validate** button under the Validation tab integrated within your lab guide. If you receive a success message, you can proceed to the next task; if not, carefully read the error message and retry the step, following the instructions in the lab guide.
 
-- Run validations when instructed in the exercise pages.
-- Validation checks may confirm deployment success, VM configuration, service availability, or expected Azure resource state.
-- If a validation does not pass, review the related task carefully and correct the issue before continuing.
+   ![](../images/valid.png)
 
-## Note
+## Let's Get Started with Azure Portal
 
-> [!Note]
-> This is a challenge-style lab environment. Exact naming, correct configuration, and task order matter. Small differences in resource names or configuration settings can cause validation to fail.
+1. On your **Lab VM**, click on the **Azure Portal** icon as shown below:
+
+   ![](../images/azure.png)
+
+1. On the **Sign in to Microsoft Azure** tab, you will see the login screen. Enter the following email/username, and click on **Next (2)**.
+
+   * **Email/Username:** <inject key="AzureAdUserEmail"></inject> **(1)**
+
+      ![](../images/signin.png)
+
+1. Now enter the following password and click on **Sign in (2)**.
+
+   * **Enter Temporary Access Pass:** <inject key="AzureAdUserPassword"></inject> **(1)**
+
+      ![](../images/pass.png)
+
+1. If prompted to **Stay signed in?**, click **"No"**.
+
+   ![](../images/stay.png)
 
 ## Support Contact
 
-If you experience issues with the lab environment, access, or instructions, contact your lab proctor or the support channel provided for your training session.
+The CloudLabs support team is available 24/7, 365 days a year, via email and live chat to ensure seamless assistance at any time. We offer dedicated support channels tailored specifically for both learners and instructors, ensuring that all your needs are promptly and efficiently addressed.
 
-When requesting help, be prepared to share:
+Learner Support Contacts:
 
-- The lab name: **Lab 1: Azure, PowerShell, Windows and Linux**
-- Your deployment identifier: **<inject key="DeploymentID" enableCopy="false"></inject>**
-- A brief description of the problem you encountered
+- Email Support: labs-support@spektrasystems.com
+- Live Chat Support: https://cloudlabs.ai/labs-support
 
-## Next
+Now, click on **Next >>** from the lower right corner to move on to the next page.
 
-Once you are ready, proceed to **Exercise 01** and begin deploying the Azure infrastructure required for the rest of the lab.
-
-## After publishing
-
-> [!Note] These steps run **after** you push the template to CloudLabs — they verify CloudLabs can actually serve this lab guide to candidates.
-
-- **Verify docs-proxy access:** open Templates → your template → **Lab Guide Settings** in <https://admin.cloudlabs.ai> and confirm CloudLabs can reach this repo via the docs proxy. If the repo is private, configure GitHub access at the template level.
-- **Verify inline questions and inline validations:** sign in to <https://admin.cloudlabs.ai>, open your template, and walk through one full lab run to confirm every `<question>` and `<validation step="..."/>` renders correctly. Fix any that don't resolve.
+![](../images/next.png)
