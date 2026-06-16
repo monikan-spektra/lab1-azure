@@ -40,29 +40,6 @@ After completing this exercise, you will be able to:
 
 ---
 
-## **Environment Information**
-
-You have been provided access to:
-
-- Azure Portal
-- Azure Subscription with appropriate deployment permissions
-- ARM template and parameter files for this exercise
-
-Use the following credentials:
-
-| Field | Value |
-|---|---|
-| Username | `<inject key="azureaduseremail">` |
-| Password | `<inject key="azureaduserpassword">` |
-| Subscription | `<inject key="subscriptionID">` |
-| Tenant | `<inject key="TenantID">` |
-| Deployment Identifier | `<inject key="DeploymentID"/>` |
-| Azure Region | `<inject key="location"/>` |
-
-> **Important:** Validation checks are based on the exact resource names listed in this guide. Do not rename resources or create additional resources.
-
----
-
 ## **Assessment Objectives**
 
 ### **Task 1: Review Deployment Requirements**
