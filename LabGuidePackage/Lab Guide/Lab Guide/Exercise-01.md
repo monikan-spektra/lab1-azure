@@ -81,8 +81,8 @@ Sign in using:
 
 | Field | Value |
 |---|---|
-| Username | `<inject key="AzureAdUserEmail">` |
-| Password | `<inject key="AzureAdUserPassword">` |
+| Username | `<inject key="azureaduseremail">` |
+| Password | `<inject key="azureadUserpassword">` |
 
 **Step 2: Verify Subscription Context**
 
@@ -90,14 +90,14 @@ After signing in, confirm that you are working in:
 
 | Field | Value |
 |---|---|
-| Subscription | `<inject key="SubscriptionID">` |
-| Tenant | `<inject key="TenantID">` |
+| Subscription | `<inject key="subscriptionid">` |
+| Tenant | `<inject key="tenantid">` |
 
 **Step 3: Review Deployment Information**
 
 | Field | Value |
 |---|---|
-| Deployment Identifier | `<inject key="DeploymentID"/>` |
+| Deployment Identifier | `<inject key="deploymentid"/>` |
 | Deployment Region | `<inject key="location"/>` |
 | Resource Group | `labuser-rg` |
 
@@ -110,9 +110,9 @@ Your deployment must create the following resources exactly as shown below:
 | Virtual Network | `lab-vnet` |
 | Network Security Group | `lab-nsg` |
 | Windows Virtual Machine | `VM-<inject key="DeploymentID"/>` |
-| Network Interface | `VM-<inject key="DeploymentID"/>-nic` |
-| Public IP Address | `VM-<inject key="DeploymentID"/>-pip` |
-| Managed OS Disk | `VM-<inject key="DeploymentID"/>-osdisk` |
+| Network Interface | `VM-<inject key="deploymentid"/>-nic` |
+| Public IP Address | `VM-<inject key="deploymentid"/>-pip` |
+| Managed OS Disk | `VM-<inject key="deploymentid"/>-osdisk` |
 
 > **Important:** Validation will fail if any required resource uses a different name.
 
@@ -146,8 +146,8 @@ Ensure that the virtual machine deployment uses:
 
 | Field | Value |
 |---|---|
-| Virtual Machine Name | `VM-<inject key="DeploymentID"/>` |
-| Operating System | Windows |
+| Virtual Machine Name | `ubuntuvm-<inject key="ubuntuvm"/>` |
+| Operating System | linux |
 | Administrator Username | `<inject key="LabVM Admin Username"/>` |
 | Administrator Password | `<inject key="LabVM Admin Password"/>` |
   
@@ -164,7 +164,7 @@ Ensure that the virtual machine deployment uses:
 
 | Field | Value |
 |---|---|
-| Subscription | `<inject key="SubscriptionID">` |
+| Subscription | `<inject key="subscriptionid">` |
 | Resource Group | `labuser-rg` |
 | Region | `<inject key="location"/>` |
 
@@ -185,10 +185,10 @@ Navigate to the resource group `labuser-rg` and confirm that the following resou
 |---|---|
 | Virtual Network | `lab-vnet` |
 | Network Security Group | `lab-nsg` |
-| Virtual Machine | `VM-<inject key="DeploymentID"/>` |
-| Network Interface | `VM-<inject key="DeploymentID"/>-nic` |
-| Public IP Address | `VM-<inject key="DeploymentID"/>-pip` |
-| Managed Disk | `VM-<inject key="DeploymentID"/>-osdisk` |
+| Virtual Machine | `ubuntuvm-<inject key="deploymentid"/>` |
+| Network Interface | `ubuntuvm-<inject key="deploymentid"/>-nic` |
+| Public IP Address | `ubuntuvm-<inject key="deploymentid"/>-pip` |
+| Managed Disk | `ubuntuvm-<inject key="deploymentid"/>-osdisk` |
 
 **Step 5: Verify Networking Configuration**
 
@@ -203,20 +203,9 @@ Confirm that:
 Confirm that:
 
 - Exactly one Virtual Machine exists.
-- The VM name is `VM-<inject key="DeploymentID"/>`
-- The VM operating system is **Windows**.
+- The VM name is `ubuntuvm-<inject key="deploymentid"/>`
+- The VM operating system is **linux**.
 - The VM provisioning state displays **Succeeded**.
-
-**Task 3 Success Criteria**
-
-Your solution is successful when:
-
-- The ARM deployment completes successfully.
-- The required resources exist in `labuser-rg`.
-- All resource names match the required naming convention.
-- The Virtual Network contains exactly one subnet.
-- Only one Windows virtual machine exists.
-- All resources show a successful provisioning state.
 
 > **Important:** Validation expects exactly six deployed resources in the resource group. Creating additional resources may cause validation to fail.
 
