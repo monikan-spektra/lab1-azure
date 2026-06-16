@@ -1,4 +1,4 @@
-# Exercise 01: Deploy Infrastructure Using ARM Template
+# 	(Cloud)-Azure ,Powershell,Ansible ,windows and Linux-Assessment-01
 
 ### Duration: 90 Minutes
 
@@ -46,7 +46,7 @@ To adjust the zoom level for the environment page, click the **A↕: 100%** icon
 
 After completing the task, hit the **Validate** button under the Validation tab integrated within your lab guide. If you receive a success message, you can proceed to the next task; if not, carefully read the error message and retry the step, following the instructions in the lab guide.
 
-   ![](../images/valid.png)
+   ![](./images/getting-started5.png)
 
 ## Let's Get Started with Azure Portal
 
@@ -81,4 +81,4 @@ Learner Support Contacts:
 
 Now, click on **Next >>** from the lower right corner to move on to the next page.
 
-![](../images/next.png)
+ ![](./images/getting-started4.png)
