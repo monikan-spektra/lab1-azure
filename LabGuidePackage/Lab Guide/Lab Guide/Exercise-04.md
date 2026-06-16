@@ -128,7 +128,7 @@ After completing this exercise, you will be able to:
    
 <validation step="5efa3b45-81c0-442f-9755-ebdcf943e908" />
 
-## **Evaluation Criteria
+## **Evaluation Criteria**
  
 The exercise is complete when the following conditions are met:
  
