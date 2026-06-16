@@ -30,26 +30,6 @@ After completing this exercise, you will be able to:
 
 ---
 
-## **Environment Information**
-
-This exercise uses the Azure lab environment, Linux administration tools, and an Ubuntu virtual machine created as part of the lab.
-
-All work must be completed in the Azure subscription assigned to your lab session.
-
-Use the following credentials:
-
-| Field | Value |
-|---|---|
-| Username | `<inject key="AzureAdUserEmail" enableCopy="true"/>` |
-| Password | `<inject key="AzureAdUserPassword" enableCopy="true"/>` |
-| Subscription | `<inject key="SubscriptionID" enableCopy="true"/>` |
-| Tenant | `<inject key="TenantID" enableCopy="true"/>` |
-| Deployment ID | `<inject key="DeploymentID" enableCopy="true"/>` |
-
-> **Note:** Use the exact resource names specified in the exercise steps. Validation checks depend on those names and configuration values.
-
----
-
 ## **Assessment Objectives**
 
 In this exercise, you must complete the following:
