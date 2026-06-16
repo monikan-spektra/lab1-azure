@@ -1,4 +1,4 @@
-# 	(Cloud)-Azure ,Powershell,Ansible ,windows and Linux-Assessment-01
+# (Cloud)-Azure ,Powershell,Ansible ,windows and Linux-Assessment-01
 
 ### Duration: 90 Minutes
 
@@ -16,7 +16,7 @@ Once you're ready to dive in, your virtual machine and guide will be right at yo
 
 Your virtual machine is your workhorse throughout the workshop. The lab guide is your roadmap to success.
 
-   ![](../images/vm.png)
+   ![](./images/lab1-2.png)
 
 ## Exploring Your Lab Resources
 
@@ -28,7 +28,7 @@ To get a better understanding of your lab resources and credentials, navigate to
 
 For convenience, you can open the lab guide in a separate window by selecting the **Split Window** button from the Top right corner.
 
-   ![](../images/split.png)
+   ![](./images/lab1-4.png)
 
 ## Managing Your Virtual Machine
 
@@ -52,7 +52,7 @@ After completing the task, hit the **Validate** button under the Validation tab 
 
 1. On your **Lab VM**, click on the **Azure Portal** icon as shown below:
 
-   ![](../images/azure.png)
+   ![](./images/lab1-3.png)
 
 1. On the **Sign in to Microsoft Azure** tab, you will see the login screen. Enter the following email/username, and click on **Next (2)**.
 
