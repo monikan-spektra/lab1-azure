@@ -210,8 +210,7 @@ sudo systemctl enable apache2
    ```
    Apache2 Ubuntu Default Page
    ```
-
-<validation step="ed5bdf6a-341c-4c8b-b94b-682adf0acff5"/>
+<validation step="ed5bdf6a-341c-4c8b-b94b-682adf0acff5" />
 
 #### Task 3 Success Criteria
 
