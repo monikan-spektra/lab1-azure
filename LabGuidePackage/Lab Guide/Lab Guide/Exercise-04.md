@@ -30,6 +30,7 @@ After completing this exercise, you will be able to:
 3. Create the automation script at `C:\Automation\vm-lifecycle.ps1`.
 4. Run the script to stop and start the Azure virtual machines.
 5. Verify the VM power states.
+   
 ## Detailed Instructions
  
 ### Task 1: Install Azure PowerShell Modules
@@ -37,6 +38,7 @@ After completing this exercise, you will be able to:
 1. Sign in to the lab virtual machine or workstation that you have been using for this lab.
 2. Open **Windows PowerShell** or **PowerShell 7** as Administrator.
 3. Run the following commands one by one to install the required Azure PowerShell modules:
+   
 ```powershell
    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 ```
@@ -123,6 +125,7 @@ After completing this exercise, you will be able to:
 2. Confirm that both target virtual machines show **VM running** in the PowerState column.
 3. Review the output carefully and make sure the expected Azure virtual machines are available and operational.
 <validation step="5efa3b45-81c0-442f-9755-ebdcf943e908" />
+
 ## Evaluation Criteria
  
 The exercise is complete when the following conditions are met:
@@ -132,6 +135,7 @@ The exercise is complete when the following conditions are met:
 - The automation script exists at `C:\Automation\vm-lifecycle.ps1`.
 - The required Azure virtual machines are stopped and started successfully by the script.
 - The final VM power state output confirms that the required virtual machines are running.
+  
 ## Completion Criteria
  
 You have completed this exercise when you have installed the required Azure PowerShell modules, authenticated to Azure using device authentication, created and run the automation script at `C:\Automation\vm-lifecycle.ps1`, and verified that the expected VM power states are running.
