@@ -1,93 +1,115 @@
-using namespace System.Net
+Import-Module Az.Compute
+Import-Module Az.Accounts
 
-# Note: $sub (subscription id) and $DID (deployment id) are injected by the platform.
-$rg = "rg-lab1-$DID"
-$ubuntuVmName = "ubuntu-vm"
-$count = 0
-$found = $false
+$deployment_id     = $deployment_id
+$resourceGroupName = "labuser-rg"
+$sub_id            = $sub_id
+$vmName            = "ubuntuvm-$deployment_id"
 
-function Get-RunCommandOutput {
-    param(
-        [string]$ResourceGroupName,
-        [string]$VMName,
-        [string]$ScriptText
-    )
+Select-AzSubscription -SubscriptionId $sub_id | Out-Null
 
-    $result = Invoke-AzVMRunCommand -ResourceGroupName $ResourceGroupName -VMName $VMName -CommandId 'RunShellScript' -ScriptString $ScriptText -ErrorAction Stop
-    return (($result.Value | ForEach-Object { $_.Message }) -join "`n")
-}
+$stopRetry = $false
+[int]$retryCount = 0
+$maxRetries = 3
 
 do {
-    $count = $count + 1
     try {
-        Set-AzContext -Subscription $sub -ErrorAction Stop
 
-        $vm = Get-AzVM -ResourceGroupName $rg -Name $ubuntuVmName -Status -ErrorAction Stop
-        $vmExists = $null -ne $vm
-        $isLinux = $vm.StorageProfile.OSDisk.OsType -eq 'Linux'
+        $script = @'
+ok=true
 
-        $sshConfigOutput = Get-RunCommandOutput -ResourceGroupName $rg -VMName $ubuntuVmName -ScriptText @'
-if [ -f /etc/ssh/sshd_config ]; then
-  root_line=$(grep -iE '^[[:space:]]*PermitRootLogin[[:space:]]+' /etc/ssh/sshd_config | tail -n 1)
-  password_line=$(grep -iE '^[[:space:]]*PasswordAuthentication[[:space:]]+' /etc/ssh/sshd_config | tail -n 1)
-  pubkey_line=$(grep -iE '^[[:space:]]*PubkeyAuthentication[[:space:]]+' /etc/ssh/sshd_config | tail -n 1)
-  challenge_line=$(grep -iE '^[[:space:]]*ChallengeResponseAuthentication[[:space:]]+' /etc/ssh/sshd_config | tail -n 1)
-  echo "PermitRootLogin=$root_line"
-  echo "PasswordAuthentication=$password_line"
-  echo "PubkeyAuthentication=$pubkey_line"
-  echo "ChallengeResponseAuthentication=$challenge_line"
+if ! grep -Eq "^[[:space:]]*PermitRootLogin[[:space:]]+no" /etc/ssh/sshd_config; then
+    ok=false
+fi
+
+if ! grep -Eq "^[[:space:]]*PasswordAuthentication[[:space:]]+no" /etc/ssh/sshd_config; then
+    ok=false
+fi
+
+if [ ! -f /home/azureuser/.ssh/authorized_keys ]; then
+    ok=false
+fi
+
+if [ "$(stat -c %a /home/azureuser/.ssh 2>/dev/null)" != "700" ]; then
+    ok=false
+fi
+
+if [ "$(stat -c %a /home/azureuser/.ssh/authorized_keys 2>/dev/null)" != "600" ]; then
+    ok=false
+fi
+
+sshd -t >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    ok=false
+fi
+
+systemctl is-active ssh >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    ok=false
+fi
+
+if [ "$ok" = true ]; then
+    echo "Validation Success"
 else
-  echo "sshd_config missing"
+    echo "Validation Failed"
 fi
 '@
 
-        $rootDisabled = $sshConfigOutput -match '(?im)^PermitRootLogin=.*\bno\b'
-        $passwordAuthDisabled = $sshConfigOutput -match '(?im)^PasswordAuthentication=.*\bno\b'
-        $pubkeyEnabled = ($sshConfigOutput -match '(?im)^PubkeyAuthentication=.*\byes\b') -or (-not ($sshConfigOutput -match '(?im)^PubkeyAuthentication='))
+        $result = Invoke-AzVMRunCommand `
+            -ResourceGroupName $resourceGroupName `
+            -VMName $vmName `
+            -CommandId "RunShellScript" `
+            -ScriptString $script
 
-        if ($vmExists -and $isLinux -and $rootDisabled -and $passwordAuthDisabled -and $pubkeyEnabled) {
-            $found = $true
+        $vmOutput = $result.Value[0].Message
+
+        if ($vmOutput -match "Validation Success") {
+
             $message = @{
-                Status  = "Succeeded"
-                Message = "Ubuntu VM '$ubuntuVmName' exists in RG '$rg' and SSH is hardened with PermitRootLogin no, PasswordAuthentication no, and key-based authentication enabled."
-            } | ConvertTo-Json
-        } else {
-            $details = @()
-            if (-not $vmExists) { $details += "Ubuntu VM '$ubuntuVmName' was not found" }
-            if ($vmExists -and -not $isLinux) { $details += "VM '$ubuntuVmName' is not a Linux VM" }
-            if (-not $rootDisabled) { $details += "PermitRootLogin is not set to no" }
-            if (-not $passwordAuthDisabled) { $details += "PasswordAuthentication is not set to no" }
-            if (-not $pubkeyEnabled) { $details += "PubkeyAuthentication is not enabled" }
-            $message = @{
-                Status  = "Failed"
-                Message = (($details -join '; ') + ". Checked VM '$ubuntuVmName' in RG '$rg'.")
+                Status = "Succeeded"
+                Message = "SSH hardening validated successfully on '$vmName'. Root login is disabled, password authentication is disabled, authorized_keys exists with secure permissions, SSH configuration is valid, and the SSH service is running."
             } | ConvertTo-Json
         }
-        Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-            StatusCode = [HttpStatusCode]::OK
-            Body       = $message
-        })
+        else {
+
+            $message = @{
+                Status = "Failed"
+                Message = "Validation failed. Ensure PermitRootLogin=no, PasswordAuthentication=no, authorized_keys exists, .ssh permissions are 700, authorized_keys permissions are 600, sshd -t succeeds, and the SSH service is active."
+            } | ConvertTo-Json
+        }
+
+        Push-OutputBinding -Name Response -Value (
+            [HttpResponseContext]@{
+                StatusCode = [System.Net.HttpStatusCode]::OK
+                Body       = $message
+            }
+        )
+
+        $stopRetry = $true
     }
     catch {
-        $message = @{
-            Status  = "Failed"
-            Message = "Error during check. Attempt $count of 3. Error: $($_.Exception.Message)"
-        } | ConvertTo-Json
-        Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-            StatusCode = [HttpStatusCode]::OK
-            Body       = $message
-        })
-        Start-Sleep -Seconds 10
-    }
-} while ($count -lt 3 -and -not $found)
 
-if (-not $found) {
-    $message = @{
-        Status  = "Failed"
-        Message = "Ubuntu VM '$ubuntuVmName' with required SSH hardening was not found in RG '$rg' after 3 attempts."
-    } | ConvertTo-Json
-    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-        StatusCode = [HttpStatusCode]::OK
-        Body       = $message
-    })
-}
+        if ($retryCount -ge $maxRetries) {
+
+            Push-OutputBinding -Name Response -Value (
+                [HttpResponseContext]@{
+                    StatusCode = [System.Net.HttpStatusCode]::OK
+                    Body = (
+                        @{
+                            Status = "Failed"
+                            Message = "Retry exhausted: $($_.Exception.Message)"
+                        } | ConvertTo-Json
+                    )
+                }
+            )
+
+            $stopRetry = $true
+        }
+        else {
+
+            Start-Sleep -Seconds 60
+            $retryCount++
+        }
+    }
+
+} while ($stopRetry -eq $false)
