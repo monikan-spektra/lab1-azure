@@ -81,8 +81,8 @@ Sign in using:
 
 | Field | Value |
 |---|---|
-| Username | `**<inject key="azureaduseremail" enableCopy="false" />**` |
-| Password | `**<inject key="azureaduseremail" enableCopy="false" />**` |
+| Username | `<inject key="azureaduseremail" enableCopy="false" />` |
+| Password | `<inject key="azureaduserpassword" enableCopy="false" />` |
 
 **Step 2: Verify Subscription Context**
 
