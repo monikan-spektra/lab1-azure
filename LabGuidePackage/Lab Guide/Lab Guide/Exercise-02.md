@@ -66,27 +66,7 @@ In this exercise, you must complete the following:
 
 In this task, you will deploy an Ubuntu virtual machine and connect to it using SSH.
 
-#### Step 1: Sign in to Azure
-
-Open a browser and navigate to: [https://portal.azure.com](https://portal.azure.com)
-
-Sign in using:
-
-| Field | Value |
-|---|---|
-| Username | `<inject key="AzureAdUserEmail" enableCopy="true"/>` |
-| Password | `<inject key="AzureAdUserPassword" enableCopy="true"/>` |
-
-#### Step 2: Verify Subscription Context
-
-After signing in, confirm that you are working in:
-
-| Field | Value |
-|---|---|
-| Subscription | `<inject key="SubscriptionID" enableCopy="true"/>` |
-| Tenant | `<inject key="TenantID" enableCopy="true"/>` |
-
-#### Step 3: Create the Ubuntu Virtual Machine
+#### Step 1: Create the Ubuntu Virtual Machine
 
 1. Navigate to **Virtual machines** and select **Create** > **Azure virtual machine**.
 
@@ -107,7 +87,7 @@ After signing in, confirm that you are working in:
 
 4. If prompted, download the generated SSH private key and store it securely.
 
-#### Step 4: Connect to the Virtual Machine
+#### Step 2: Connect to the Virtual Machine
 
 1. After the deployment completes, open the virtual machine overview page.
 
@@ -249,7 +229,6 @@ Your solution is successful when:
 - The SSH service restarts and remains operational.
 - Root login over SSH is confirmed as disabled.
 - Password-based authentication is confirmed as disabled.
-
 ---
 
 ## Evaluation Criteria
