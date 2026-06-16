@@ -1,95 +1,110 @@
-using namespace System.Net
+Import-Module Az.Compute
+Import-Module Az.Accounts
 
-# Note: $sub (subscription id) and $DID (deployment id) are injected by the platform.
-$rg = "rg-lab1-$DID"
-$count = 0
-$found = $false
+$deployment_id     = $deployment_id
+$resourceGroupName = "labuser-rg"
+$sub_id            = $sub_id
+$vmName            = "ubuntuvm-$deployment_id"
 
-function Get-RunningLinuxVm {
-    param(
-        [string]$ResourceGroupName
-    )
+Select-AzSubscription -SubscriptionId $sub_id | Out-Null
 
-    $vms = Get-AzVM -ResourceGroupName $ResourceGroupName -Status -ErrorAction Stop
-    foreach ($vm in $vms) {
-        if ($vm.StorageProfile.OSDisk.OsType -eq 'Linux') {
-            $powerState = ($vm.Statuses | Where-Object { $_.Code -like 'PowerState/*' } | Select-Object -First 1).DisplayStatus
-            if ($powerState -eq 'VM running') {
-                return $vm
-            }
-        }
-    }
-
-    return $null
-}
+$stopRetry = $false
+[int]$retryCount = 0
+$maxRetries = 3
 
 do {
-    $count = $count + 1
     try {
-        Set-AzContext -Subscription $sub -ErrorAction Stop | Out-Null
 
-        $vm = Get-RunningLinuxVm -ResourceGroupName $rg
-        if ($null -ne $vm) {
-            $nicId = $vm.NetworkProfile.NetworkInterfaces[0].Id
-            $nic = Get-AzNetworkInterface -ResourceId $nicId -ErrorAction Stop
-            $pipId = $nic.IpConfigurations[0].PublicIpAddress.Id
+        $script = @'
+ok=true
 
-            if ($pipId) {
-                $pip = Get-AzPublicIpAddress -ResourceId $pipId -ErrorAction Stop
-                $ipAddress = $pip.IpAddress
+dpkg -s apache2 >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    ok=false
+fi
 
-                if (-not [string]::IsNullOrWhiteSpace($ipAddress)) {
-                    $response = Invoke-WebRequest -Uri ("http://{0}" -f $ipAddress) -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
-                    $statusOk = $response.StatusCode -eq 200
-                    $contentOk = $response.Content -match 'Apache2 Ubuntu Default Page|It works|Apache'
+systemctl is-active apache2 >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    ok=false
+fi
 
-                    if ($statusOk -and $contentOk) {
-                        $found = $true
-                        $message = @{
-                            Status  = "Succeeded"
-                            Message = "Apache is installed and responding on Ubuntu VM '$($vm.Name)' in RG '$rg'. HTTP port 80 is reachable at $ipAddress and returned a successful web response."
-                        } | ConvertTo-Json
-                    }
-                }
-            }
-        }
+systemctl is-enabled apache2 >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    ok=false
+fi
 
-        if ($found) {
-            Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-                StatusCode = [HttpStatusCode]::OK
-                Body       = $message
-            })
-        } else {
+curl -I http://localhost >/tmp/http.out 2>/dev/null
+
+grep -q "HTTP/1.1 200" /tmp/http.out
+if [ $? -ne 0 ]; then
+    grep -q "HTTP/2 200" /tmp/http.out
+    if [ $? -ne 0 ]; then
+        ok=false
+    fi
+fi
+
+if [ "$ok" = true ]; then
+    echo "Validation Success"
+else
+    echo "Validation Failed"
+fi
+'@
+
+        $result = Invoke-AzVMRunCommand `
+            -ResourceGroupName $resourceGroupName `
+            -VMName $vmName `
+            -CommandId "RunShellScript" `
+            -ScriptString $script
+
+        $vmOutput = $result.Value[0].Message
+
+        if ($vmOutput -match "Validation Success") {
+
             $message = @{
-                Status  = "Failed"
-                Message = "Could not confirm the Ubuntu Apache web server in RG '$rg'. Ensure the Ubuntu VM is running, has a public IP, Apache is installed and running, and HTTP port 80 is reachable and responding."
+                Status = "Succeeded"
+                Message = "Apache validated successfully on '$vmName'. Apache is installed, the apache2 service is running and enabled, and localhost returns HTTP 200."
             } | ConvertTo-Json
-            Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-                StatusCode = [HttpStatusCode]::OK
-                Body       = $message
-            })
         }
+        else {
+
+            $message = @{
+                Status = "Failed"
+                Message = "Validation failed. Ensure Apache is installed, the apache2 service is running and enabled, and localhost returns HTTP 200."
+            } | ConvertTo-Json
+        }
+
+        Push-OutputBinding -Name Response -Value (
+            [HttpResponseContext]@{
+                StatusCode = [System.Net.HttpStatusCode]::OK
+                Body       = $message
+            }
+        )
+
+        $stopRetry = $true
     }
     catch {
-        $message = @{
-            Status  = "Failed"
-            Message = "Error during check. Attempt $count of 3. Error: $($_.Exception.Message)"
-        } | ConvertTo-Json
-        Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-            StatusCode = [HttpStatusCode]::OK
-            Body       = $message
-        })
-        Start-Sleep -Seconds 10
-    }
-} while ($count -lt 3 -and -not $found)
 
-if (-not $found) {
-    $message = @{
-        Status  = "Failed"
-        Message = "Apache web server validation did not succeed in RG '$rg' after 3 attempts."
-    } | ConvertTo-Json
-    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-        StatusCode = [HttpStatusCode]::OK
-        Body       = $message
-    })
-}
+        if ($retryCount -ge $maxRetries) {
+
+            Push-OutputBinding -Name Response -Value (
+                [HttpResponseContext]@{
+                    StatusCode = [System.Net.HttpStatusCode]::OK
+                    Body = (
+                        @{
+                            Status = "Failed"
+                            Message = "Retry exhausted: $($_.Exception.Message)"
+                        } | ConvertToJson
+                    )
+                }
+            )
+
+            $stopRetry = $true
+        }
+        else {
+
+            Start-Sleep -Seconds 60
+            $retryCount++
+        }
+    }
+
+} while ($stopRetry -eq $false)
