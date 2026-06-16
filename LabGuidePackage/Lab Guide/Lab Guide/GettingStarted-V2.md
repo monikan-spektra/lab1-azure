@@ -22,7 +22,7 @@ Your virtual machine is your workhorse throughout the workshop. The lab guide is
 
 To get a better understanding of your lab resources and credentials, navigate to the **Environment** tab.
 
-   ![](../images/lab1-1.png)
+   ![](./images/lab1-1.png)
 
 ## Utilizing the Split Window Feature
 
@@ -34,7 +34,7 @@ For convenience, you can open the lab guide in a separate window by selecting th
 
 Feel free to **Start, Restart,** or **Stop** your virtual machine as needed from the **Resources** tab. Your experience is in your hands!
 
-   ![](../images/res.png)
+   ![](./images/getting-started3.png)
 
 ## Lab Guide Zoom In/Zoom Out
 
