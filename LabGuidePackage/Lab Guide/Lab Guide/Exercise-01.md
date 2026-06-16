@@ -52,9 +52,9 @@ Use the following credentials:
 
 | Field | Value |
 |---|---|
-| Username | `<inject key="AzureAdUserEmail">` |
-| Password | `<inject key="AzureAdUserPassword">` |
-| Subscription | `<inject key="SubscriptionID">` |
+| Username | `<inject key="azureaduseremail">` |
+| Password | `<inject key="azureaduserpassword">` |
+| Subscription | `<inject key="subscriptionID">` |
 | Tenant | `<inject key="TenantID">` |
 | Deployment Identifier | `<inject key="DeploymentID"/>` |
 | Azure Region | `<inject key="location"/>` |
