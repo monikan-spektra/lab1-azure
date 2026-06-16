@@ -1,152 +1,255 @@
-# Exercise 03: Deploy Ubuntu VM and configure as web server
+# Exercise 03: Configure Ubuntu VM as a Web Server
 
 ## Lab Overview
 
-In this exercise, you will deploy an Ubuntu virtual machine in Azure and configure it to host a basic web server. You will create the Linux virtual machine in the existing lab environment, allow HTTP access, install Apache, and verify that the default web page is available.
+In this exercise, you will configure the existing Ubuntu virtual machine in Azure to host a basic web server. You will install the Apache web server, start and enable the Apache service, and verify that the default web page is available locally from the Ubuntu virtual machine.
+
+---
 
 ## Scenario
 
-You are working as an Azure infrastructure engineer for a cloud operations team. The organization requires a Linux virtual machine that can be used for administration and application hosting tasks. Your manager has asked you to deploy an Ubuntu VM into the existing Azure environment and prepare it to serve web content for testing and validation.
+You are working as an Azure infrastructure engineer for a cloud operations team. The organization requires a Linux virtual machine that can be used for administration and application hosting tasks. Your manager has asked you to prepare the existing Ubuntu virtual machine to serve web content for testing and validation purposes.
+
+---
 
 ## Solution
 
-To complete this scenario, you will deploy an Ubuntu VM into the existing resource group and virtual network, configure network access for HTTP traffic, install the Apache web server on the Linux VM, and verify that the Apache default web page is accessible.
+To complete this scenario, you will connect to the existing Ubuntu virtual machine, install the Apache web server, start and enable the Apache service, and verify that the Apache default web page is accessible from the local system.
+
+---
 
 ## Learning Objectives
 
 After completing this exercise, you will be able to:
 
-- Deploy an Ubuntu virtual machine in Azure.
-- Configure HTTP access for a Linux web server.
+- Connect to an Ubuntu virtual machine in Azure.
 - Install Apache on Ubuntu.
-- Start the Apache service and verify web server functionality.
+- Start and enable the Apache service.
+- Verify web server functionality using the default Apache page.
+
+---
 
 ## Environment Information
 
-- Azure portal: <https://portal.azure.com>
-- Username: <inject key="AzureAdUserEmail"></inject>
-- Password: <inject key="AzureAdUserPassword"></inject>
-- Subscription: <inject key="SubscriptionID"></inject>
-- Tenant: <inject key="TenantID"></inject>
-- Deployment ID: **<inject key="DeploymentID" enableCopy="false"/>**
+You have been provided access to:
 
-> [!Note]
-> Use the exact resource names specified in the steps. Validation depends on those names.
+- Azure Portal
+- Azure Subscription with appropriate permissions
+- An existing Ubuntu virtual machine deployed in the lab resource group
+
+Use the following credentials:
+
+| Field | Value |
+|---|---|
+| Username | `<inject key="AzureAdUserEmail" enableCopy="true"/>` |
+| Password | `<inject key="AzureAdUserPassword" enableCopy="true"/>` |
+| Subscription | `<inject key="SubscriptionID" enableCopy="true"/>` |
+| Tenant | `<inject key="TenantID" enableCopy="true"/>` |
+| Deployment ID | `<inject key="DeploymentID" enableCopy="true"/>` |
+| Resource Group | `labuser-rg` |
+| Ubuntu VM Name | `ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>` |
+
+> **Note:** Use the exact virtual machine name specified above. Validation checks depend on the expected resource name and service configuration.
+
+---
 
 ## Assessment Objectives
 
-1. Deploy the Ubuntu VM.
-2. Configure HTTP access and install Apache.
-3. Start Apache and verify the default web page.
+In this exercise, you must complete the following:
+
+1. Connect to the Ubuntu virtual machine.
+2. Install Apache.
+3. Start and enable the Apache service.
+4. Verify that the Apache default page is returned locally.
+
+---
 
 ## Detailed Instructions
 
-### Task 1: Deploy the Ubuntu VM
+### Task 1: Connect to the Ubuntu VM
 
-1. Sign in to the Azure portal at <https://portal.azure.com> by using **<inject key="AzureAdUserEmail"></inject>** and **<inject key="AzureAdUserPassword"></inject>**.
-2. In the Azure portal, confirm that you are working in subscription **<inject key="SubscriptionID"></inject>**.
-3. Open **Cloud Shell** and select **Bash**.
-4. Run the following commands to set variables for the deployment:
+In this task, you will connect to the existing Ubuntu virtual machine.
 
-   ```bash
-   RG_NAME="rg-<inject key="DeploymentID"></inject>"
-   VNET_NAME="vnet-lab"
-   SUBNET_NAME="subnet-workload"
-   VM_NAME="ubuntuvm01"
-   ADMIN_USER="azureuser"
+#### Step 1: Locate the Virtual Machine
+
+1. Sign in to the Azure portal at [https://portal.azure.com](https://portal.azure.com) using:
+
+   | Field | Value |
+   |---|---|
+   | Username | `<inject key="AzureAdUserEmail" enableCopy="true"/>` |
+   | Password | `<inject key="AzureAdUserPassword" enableCopy="true"/>` |
+
+2. Navigate to **Virtual machines** and locate the VM named:
+
+   ```
+   ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
    ```
 
-5. Create the Ubuntu virtual machine by running the following command:
+#### Step 2: Open a Terminal Session
+
+1. Connect to the Ubuntu virtual machine using the access method provided by the lab environment.
+
+2. Open a terminal session.
+
+3. Verify that you can execute administrative commands:
 
    ```bash
-   az vm create \
-     --resource-group $RG_NAME \
-     --name $VM_NAME \
-     --image Ubuntu2204 \
-     --admin-username $ADMIN_USER \
-     --generate-ssh-keys \
-     --vnet-name $VNET_NAME \
-     --subnet $SUBNET_NAME \
-     --public-ip-sku Standard
+   sudo -i
    ```
 
-6. Wait for the deployment to complete successfully.
-7. Record the public IP address returned by the deployment output.
-
-### Task 2: Configure HTTP access and install Apache
-
-1. In Cloud Shell, open TCP port 80 for the Ubuntu VM:
+4. Exit the root shell when verification is complete:
 
    ```bash
-   az vm open-port \
-     --resource-group $RG_NAME \
-     --name $VM_NAME \
-     --port 80
+   exit
    ```
 
-2. Connect to the Ubuntu VM by using SSH and the public IP address returned from the previous step.
-3. Update the package list:
+#### Task 1 Success Criteria
 
-   ```bash
-   sudo apt-get update
-   ```
+Your solution is successful when:
 
-4. Install Apache:
+- You have located the Ubuntu virtual machine in the Azure portal.
+- You have connected successfully to the VM.
+- You can execute administrative commands in the terminal.
 
-   ```bash
-   sudo apt-get install apache2 -y
-   ```
+---
 
-5. Verify that Apache is installed:
+### Task 2: Install Apache
+
+In this task, you will install the Apache web server.
+
+#### Step 1: Update the Package Repository
+
+Run the following command to update the package list:
+
+```bash
+sudo apt-get update
+```
+
+#### Step 2: Install Apache
+
+Install the Apache web server:
+
+```bash
+sudo apt-get install apache2 -y
+```
+
+#### Step 3: Verify the Installation
+
+1. Verify that Apache is installed:
 
    ```bash
    apache2 -v
    ```
 
-### Task 3: Start Apache and verify the default web page
-
-1. Start the Apache service:
+2. Confirm that the Apache package information can be displayed:
 
    ```bash
-   sudo systemctl start apache2
+   apt show apache2
    ```
 
-2. Enable Apache to start automatically when the VM starts:
+#### Task 2 Success Criteria
+
+Your solution is successful when:
+
+- The package repository is updated successfully.
+- Apache is installed without errors.
+- The Apache version is displayed confirming a successful installation.
+
+---
+
+### Task 3: Start and Verify Apache
+
+In this task, you will start Apache and verify that the default web page is available.
+
+#### Step 1: Start the Apache Service
+
+Start the Apache service:
+
+```bash
+sudo systemctl start apache2
+```
+
+#### Step 2: Enable Apache on Boot
+
+Configure Apache to start automatically after system reboot:
+
+```bash
+sudo systemctl enable apache2
+```
+
+#### Step 3: Verify the Apache Service
+
+1. Verify that the Apache service is running:
 
    ```bash
-   sudo systemctl enable apache2
+   sudo systemctl status apache2 --no-pager
    ```
 
-3. Verify that the Apache service is running:
+2. Verify that Apache is enabled:
 
    ```bash
-   sudo systemctl status apache2
+   sudo systemctl is-enabled apache2
    ```
 
-4. From the Ubuntu VM, test the local web response:
+#### Step 4: Test the Local Web Response
+
+1. Test the local web response:
 
    ```bash
-   curl http://localhost
+   curl -I http://localhost
    ```
 
-5. In a browser, browse to the public IP address that was returned when you created the Ubuntu VM and confirm that the Apache default page is displayed.
+2. Verify that the default Apache page is returned:
 
-<question>
+   ```bash
+   curl http://localhost | grep "Apache2 Ubuntu Default Page"
+   ```
+
+3. Confirm that the output contains:
+
+   ```
+   Apache2 Ubuntu Default Page
+   ```
 
 <validation step="ed5bdf6a-341c-4c8b-b94b-682adf0acff5"/>
 
+#### Task 3 Success Criteria
+
+Your solution is successful when:
+
+- The Apache service is running and shows an active state.
+- Apache is enabled to start automatically on reboot.
+- The default Apache page is returned from `http://localhost`.
+
+---
+
 ## Evaluation Criteria
 
-Your work will be evaluated based on the following:
+Your submission will be evaluated based on:
 
-- The Ubuntu VM is deployed successfully in Azure.
-- HTTP access is configured correctly.
-- Apache is installed on the Ubuntu VM.
-- The Apache service is running.
-- The default Apache web page is accessible.
+**Task 1**
+- Successful connection to the Ubuntu virtual machine.
+
+**Task 2**
+- Apache was installed successfully.
+
+**Task 3**
+- The Apache service was started successfully.
+- The Apache service was configured to start automatically.
+- The Apache default page was returned from the local web server.
+
+---
 
 ## Completion Criteria
 
-You have successfully completed this exercise when you have deployed the Ubuntu virtual machine, configured HTTP access, installed Apache, and verified that the default Apache page is available.
+You have successfully completed this exercise when:
 
-**Completed Exercise 03: Deploy Ubuntu VM and configure as web server**
+- You connected to the Ubuntu virtual machine.
+- Apache was installed successfully.
+- The Apache service is running.
+- Apache is enabled to start automatically.
+- The default Apache page is returned from `http://localhost`.
+
+---
+
+**You have successfully completed Exercise 03: Configure Ubuntu VM as a Web Server.**
