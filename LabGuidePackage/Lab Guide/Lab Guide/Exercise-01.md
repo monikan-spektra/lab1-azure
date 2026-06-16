@@ -1,6 +1,6 @@
-# Exercise 01: Deploy Infrastructure Using ARM Template
+# **Exercise 01: Deploy Infrastructure Using ARM Template**
 
-## Lab Overview
+## **Lab Overview**
 
 In this exercise, you will deploy the base Azure infrastructure required for the remaining lab scenarios by using an Azure Resource Manager (ARM) template.
 
@@ -8,7 +8,7 @@ The deployment will provision a Windows virtual machine along with the networkin
 
 ---
 
-## Scenario
+## **Scenario**
 
 You have recently joined the Cloud Operations team as an Azure Infrastructure Engineer.
 
@@ -18,7 +18,7 @@ You have been provided access to an Azure subscription and must deploy the resou
 
 ---
 
-## Solution
+## **Solution**
 
 To address this requirement, you will review the provided ARM template and parameter file, then perform a custom deployment through the Azure portal.
 
@@ -28,7 +28,7 @@ This exercise demonstrates common Azure infrastructure deployment tasks frequent
 
 ---
 
-## Learning Objectives
+## **Learning Objectives**
 
 After completing this exercise, you will be able to:
 
@@ -40,7 +40,7 @@ After completing this exercise, you will be able to:
 
 ---
 
-## Environment Information
+## **Environment Information**
 
 You have been provided access to:
 
@@ -63,9 +63,9 @@ Use the following credentials:
 
 ---
 
-## Assessment Objectives
+## **Assessment Objectives**
 
-### Task 1: Review Deployment Requirements
+### **Task 1: Review Deployment Requirements**
 
 Review the deployment requirements and confirm that you understand:
 
@@ -74,7 +74,7 @@ Review the deployment requirements and confirm that you understand:
 - The resource naming requirements.
 - The ARM deployment files.
 
-### Task 2: Review the ARM Template and Parameter File
+### **Task 2: Review the ARM Template and Parameter File**
 
 Confirm that the ARM deployment defines:
 
@@ -86,17 +86,17 @@ Confirm that the ARM deployment defines:
 - One Public IP Address
 - One Managed OS Disk
 
-### Task 3: Deploy and Verify the Infrastructure
+### **Task 3: Deploy and Verify the Infrastructure**
 
 Deploy the ARM template and verify that all required resources were provisioned successfully.
 
 ---
 
-## Detailed Instructions
+## **Detailed Instructions**
 
-### Task 1: Review Deployment Requirements
+### **Task 1: Review Deployment Requirements**
 
-#### Step 1: Sign in to Azure
+ **Step 1: Sign in to Azure**
 
 Open a browser and navigate to: [https://portal.azure.com](https://portal.azure.com)
 
@@ -107,7 +107,7 @@ Sign in using:
 | Username | `<inject key="AzureAdUserEmail">` |
 | Password | `<inject key="AzureAdUserPassword">` |
 
-#### Step 2: Verify Subscription Context
+**Step 2: Verify Subscription Context**
 
 After signing in, confirm that you are working in:
 
@@ -116,7 +116,7 @@ After signing in, confirm that you are working in:
 | Subscription | `<inject key="SubscriptionID">` |
 | Tenant | `<inject key="TenantID">` |
 
-#### Step 3: Review Deployment Information
+**Step 3: Review Deployment Information**
 
 | Field | Value |
 |---|---|
@@ -124,7 +124,7 @@ After signing in, confirm that you are working in:
 | Deployment Region | `<inject key="location"/>` |
 | Resource Group | `labuser-rg` |
 
-#### Step 4: Review Required Resource Names
+**Step 4: Review Required Resource Names**
 
 Your deployment must create the following resources exactly as shown below:
 
@@ -139,27 +139,19 @@ Your deployment must create the following resources exactly as shown below:
 
 > **Important:** Validation will fail if any required resource uses a different name.
 
-#### Task 1 Success Criteria
+### **Task 2: Review the ARM Template and Parameter File**
 
-Your solution is successful when:
-
-- You are signed in to the correct Azure environment.
-- You have identified the deployment identifier.
-- You understand the required resource names.
-
-### Task 2: Review the ARM Template and Parameter File
-
-#### Step 1: Open the ARM Template
+ **Step 1: Open the ARM Template**
 
 - Open the provided ARM template file.
 - Review the resources defined within the template.
 
-#### Step 2: Open the Parameter File
+ **Step 2: Open the Parameter File**
 
 - Open the parameter file supplied with the lab.
 - Review the parameter values that will be used during deployment.
 
-#### Step 3: Verify Template Components
+ **Step 3: Verify Template Components**
 
 Confirm that the template defines the following resources:
 
@@ -171,7 +163,7 @@ Confirm that the template defines the following resources:
 - One Public IP Address
 - One Managed Disk
 
-#### Step 4: Verify VM Configuration
+**Step 4: Verify VM Configuration**
 
 Ensure that the virtual machine deployment uses:
 
@@ -181,25 +173,17 @@ Ensure that the virtual machine deployment uses:
 | Operating System | Windows |
 | Administrator Username | `<inject key="LabVM Admin Username"/>` |
 | Administrator Password | `<inject key="LabVM Admin Password"/>` |
-
-#### Task 2 Success Criteria
-
-Your solution is successful when:
-
-- The ARM template contains all required resources.
-- The parameter values have been reviewed.
-- The deployment files are ready without unnecessary modifications.
   
-### Task 3: Deploy and Verify the Infrastructure
+### **Task 3: Deploy and Verify the Infrastructure**
 
-#### Step 1: Start a Custom Deployment
+ **Step 1: Start a Custom Deployment**
 
 1. In the Azure portal, search for: **Deploy a custom template**
 2. Choose: **Build your own template in the editor**
 3. Upload the provided ARM template.
 4. Upload the parameter file when prompted.
 
-#### Step 2: Configure Deployment Details
+**Step 2: Configure Deployment Details**
 
 | Field | Value |
 |---|---|
@@ -210,13 +194,13 @@ Your solution is successful when:
 - Review the deployment settings.
 - Choose **Review + Create**, then select **Create**.
 
-#### Step 3: Wait for Deployment Completion
+**Step 3: Wait for Deployment Completion**
 
 Monitor the deployment until the status displays:
 
 > **Your deployment is complete.**
 
-#### Step 4: Verify Required Resources
+**Step 4: Verify Required Resources**
 
 Navigate to the resource group `labuser-rg` and confirm that the following resources exist:
 
@@ -229,7 +213,7 @@ Navigate to the resource group `labuser-rg` and confirm that the following resou
 | Public IP Address | `VM-<inject key="DeploymentID"/>-pip` |
 | Managed Disk | `VM-<inject key="DeploymentID"/>-osdisk` |
 
-#### Step 5: Verify Networking Configuration
+**Step 5: Verify Networking Configuration**
 
 Confirm that:
 
@@ -237,7 +221,7 @@ Confirm that:
 - The Virtual Network contains exactly one subnet.
 - Exactly one Network Security Group exists.
 
-#### Step 6: Verify Virtual Machine Configuration
+**Step 6: Verify Virtual Machine Configuration**
 
 Confirm that:
 
@@ -246,7 +230,7 @@ Confirm that:
 - The VM operating system is **Windows**.
 - The VM provisioning state displays **Succeeded**.
 
-#### Task 3 Success Criteria
+**Task 3 Success Criteria**
 
 Your solution is successful when:
 
@@ -263,7 +247,7 @@ Your solution is successful when:
 
 <validation step="62edf637-0ffb-4e67-9fc4-bad938dbdaa2" />
 
-## Evaluation Criteria
+## **Evaluation Criteria**
 
 Your submission will be evaluated based on:
 
@@ -283,7 +267,7 @@ Your submission will be evaluated based on:
 
 ---
 
-## Completion Criteria
+## **Completion Criteria**
 
 You have successfully completed the assessment when:
 
