@@ -80,8 +80,8 @@ Open a browser and navigate to: [https://portal.azure.com](https://portal.azure.
 Sign in using:
 
 
- Username :  <inject key="azureaduseremail" enableCopy="false" /> 
- Password :  <inject key="azureaduserpassword" enableCopy="false" /> 
+ Username :`<inject key="azureaduseremail" enableCopy="false" />`
+ Password :`<inject key="azureaduserpassword" enableCopy="false" />` 
 
 **Step 2: Verify Subscription Context**
 
