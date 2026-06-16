@@ -55,7 +55,7 @@ In this task, you will deploy an Ubuntu virtual machine and connect to it using 
    | Setting | Value |
    |---|---|
    | Resource Group | `labuser-rg` |
-   | Virtual Machine Name | `ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>` |
+   | Virtual Machine Name | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>` |
    | Image | Ubuntu Server 22.04 LTS |
    | Size | Standard_B2s |
    | Authentication Type | SSH public key |
@@ -81,10 +81,7 @@ In this task, you will deploy an Ubuntu virtual machine and connect to it using 
    ```
 
 4. Confirm that the output displays:
-
-   ```text
-   root
-   ```
+   `root`
 
 ### **Task 2: Disable Root Login and Configure Key-Based Authentication**
 
@@ -100,15 +97,15 @@ In this task, you will update the SSH configuration to harden access to the Ubun
 
 2. Locate the following directive. If it does not exist, add it:
 
-   ```text
-   PermitRootLogin no
-   ```
+   
+   `PermitRootLogin no`
+
 
 3. Locate the following directive. If it does not exist, add it:
 
-   ```text
-   PasswordAuthentication no
-   ```
+   
+   `PasswordAuthentication no`
+   
 
 4. Save the file and exit the editor.
 
