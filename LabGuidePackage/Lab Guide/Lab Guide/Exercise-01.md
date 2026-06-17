@@ -133,10 +133,10 @@ You have successfully completed the assessment when:
 - The following resources exist in `RG-01`:
   - `lab-vnet`
   - `lab-nsg`
-  - `ubuntuvm-<inject key="deploymentid"/>`
-  - `ubuntuvm-<inject key="deploymentid"/>-nic`
-  - `ubuntuvm-<inject key="deploymentid"/>-pip`
-  - `ubuntuvm-<inject key="deploymentid"/>-osdisk`
+  - `ubuntuvm-<inject key="deploymentid" enableCopy="false"/>`
+  - `ubuntuvm-<inject key="deploymentid" enableCopy="false"/>-nic`
+  - `ubuntuvm-<inject key="deploymentid" enableCopy="false"/>-pip`
+  - `ubuntuvm-<inject key="deploymentid" enableCopy="false"/>-osdisk`
 - The Virtual Network contains exactly one subnet.
 - The Virtual Machine is a linux VM.
 - No unexpected resources were created.
