@@ -130,7 +130,7 @@ You have successfully completed the assessment when:
 - You signed in to the correct Azure environment.
 - You reviewed the ARM template and parameter file.
 - The ARM deployment completed successfully.
-- The following resources exist in `labuser-rg`:
+- The following resources exist in `RG-01`:
   - `lab-vnet`
   - `lab-nsg`
   - `ubuntuvm-<inject key="deploymentid"/>`
