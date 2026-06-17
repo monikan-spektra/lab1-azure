@@ -80,19 +80,16 @@ Navigate to the resource group `RG-01` and confirm that the following resources 
 
 | Resource Type | Expected Resource Name |
 
- Virtual Network : **lab-vnet**
- Network Security Group : `lab-nsg` 
- Virtual Machine  ```
-ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
-``` 
- Network Interface  `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-nic` |
- Public IP Address  `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-pip` |
- Managed Disk  `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-osdisk` |
+ * Virtual Network : `lab-vnet`
+ * Network Security Group : `lab-nsg` 
+ * Virtual Machine : ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
+ * Network Interface : ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>-nic |
+ * Public IP Address : ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>-pip |
+ * Managed Disk : ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>-osdisk` |
 
 **Step 5: Verify Networking Configuration**
 
 Confirm that:
-ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
 
 - Exactly one Virtual Network exists.
 - The Virtual Network contains exactly one subnet.
@@ -103,7 +100,7 @@ ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
 Confirm that:
 
 - Exactly one Virtual Machine exists.
-- The VM name is `ubuntuvm-<inject key="deploymentid" enableCopy="true" />`
+- The VM name is ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
 - The VM operating system is **linux**.
 - The VM provisioning state displays **Succeeded**.
 
@@ -134,8 +131,8 @@ You have successfully completed the assessment when:
 - The following resources exist in `RG-01`:
   - `lab-vnet`
   - `lab-nsg`
-  - `ubuntuvm-<inject key="deploymentid" enableCopy="true" />`
-  - `ubuntuvm-<inject key="deploymentid" enableCopy="true" />-nic`
+  - ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
+  - ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
   - `ubuntuvm-<inject key="deploymentid" enableCopy="true" />-pip`
   - `ubuntuvm-<inject key="deploymentid" enableCopy="true" />-osdisk`
 - The Virtual Network contains exactly one subnet.
