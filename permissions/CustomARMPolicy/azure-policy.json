@@ -1,16 +1,9 @@
 {
-  "properties": {
-    "displayName": "Allow East US Only",
-    "policyType": "Custom",
-    "mode": "Indexed",
-    "policyRule": {
-      "if": {
-        "field": "location",
-        "notEquals": "eastus"
-      },
-      "then": {
-        "effect": "deny"
-      }
-    }
+  "if": {
+    "field": "location",
+    "notEquals": "eastus"
+  },
+  "then": {
+    "effect": "deny"
   }
 }
