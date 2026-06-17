@@ -61,10 +61,7 @@ Deploy the ARM template and verify that all required resources were provisioned 
 
 **Step 2: Configure Deployment Details**
 
-| Field | Value |
 * Resource Group :`RG-01` 
-
-
 - Review the deployment settings.
 - Choose **Review + Create**, then select **Create**.
 
@@ -83,9 +80,9 @@ Navigate to the resource group `RG-01` and confirm that the following resources 
  * Virtual Network : `lab-vnet`
  * Network Security Group : `lab-nsg` 
  * Virtual Machine : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>
- * Network Interface : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-nic |
- * Public IP Address : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-pip |
- * Managed Disk : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-osdisk` |
+ * Network Interface : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-nic 
+ * Public IP Address : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-pip 
+ * Managed Disk : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-osdisk` 
 
 **Step 5: Verify Networking Configuration**
 
@@ -133,8 +130,8 @@ You have successfully completed the assessment when:
   - `lab-nsg`
   - ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>
   - ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-nic 
-  - Public IP Address : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-pip 
-  - ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-osdisk` 
+  - ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-pip 
+  - ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-osdisk 
 - The Virtual Network contains exactly one subnet.
 - The Virtual Machine is a linux VM.
 - No unexpected resources were created.
