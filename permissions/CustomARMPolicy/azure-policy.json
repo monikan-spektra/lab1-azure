@@ -1,9 +1,8 @@
 {
   "properties": {
-    "displayName": "Allow East US Resources Only",
+    "displayName": "Allow East US Only",
     "policyType": "Custom",
     "mode": "Indexed",
-    "parameters": {},
     "policyRule": {
       "if": {
         "field": "location",
