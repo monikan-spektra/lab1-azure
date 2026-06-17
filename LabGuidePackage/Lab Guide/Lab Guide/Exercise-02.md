@@ -31,24 +31,6 @@ After completing this exercise, you will be able to:
 
 ---
 
-## **Environment Information**
-
-Use the following credentials:
-
-| Field | Value |
-|---|---|
-| Username | `<inject key="AzureAdUserEmail" enableCopy="true"/>` |
-| Password | `<inject key="AzureAdUserPassword" enableCopy="true"/>` |
-| Subscription | `<inject key="SubscriptionID" enableCopy="true"/>` |
-| Tenant | `<inject key="TenantID" enableCopy="true"/>` |
-| Deployment ID | `<inject key="DeploymentID" enableCopy="true"/>` |
-| Resource Group | `labuser-rg` |
-| Ubuntu VM Name | `ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>` |
-
-> **Note:** Use the exact resource names specified in the exercise steps. Validation checks depend on those names and configuration values.
-
----
-
 ## **Assessment Objectives**
 
 In this exercise, you must complete the following:
@@ -68,7 +50,7 @@ In this exercise, you must complete the following:
 
 In this task, you will connect to the existing Ubuntu virtual machine.
 
-#### Step 1: Locate the Virtual Machine
+**Step 1: Locate the Virtual Machine**
 
 Navigate to **Virtual Machines** and locate:
 
@@ -76,13 +58,13 @@ Navigate to **Virtual Machines** and locate:
 ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
 ```
 
-#### Step 2: Connect Using SSH
+**Step 2: Connect Using SSH**
 
 1. Open the VM overview page.
 2. Select **Connect** > **SSH**.
 3. Connect using the provided SSH command.
 
-#### Step 3: Verify Administrative Access
+**Step 3: Verify Administrative Access**
 
 Run:
 
@@ -102,21 +84,11 @@ Expected output:
 root
 ```
 
-#### Task 1 Success Criteria
-
-Your solution is successful when:
-
-- You have located the Ubuntu virtual machine in the Azure portal.
-- You have connected successfully to the VM via SSH.
-- You can execute administrative commands in the terminal.
-
----
-
-### Task 2: Disable Root Login and Password Authentication
+### **Task 2: Disable Root Login and Password Authentication**
 
 In this task, you will update the SSH configuration to harden access to the Ubuntu VM.
 
-#### Step 1: Edit the SSH Configuration
+**Step 1: Edit the SSH Configuration**
 
 Open the SSH daemon configuration file:
 
@@ -133,7 +105,7 @@ PasswordAuthentication no
 
 Save the file and exit.
 
-#### Step 2: Verify Configuration Entries
+**Step 2: Verify Configuration Entries**
 
 Verify the `PermitRootLogin` setting:
 
@@ -159,16 +131,7 @@ Expected output:
 PasswordAuthentication no
 ```
 
-#### Task 2 Success Criteria
-
-Your solution is successful when:
-
-- `PermitRootLogin no` is confirmed in the SSH daemon configuration file.
-- `PasswordAuthentication no` is confirmed in the SSH daemon configuration file.
-
----
-
-### Task 3: Configure Authorized Keys
+### **Task 3: Configure Authorized Keys**
 
 In this task, you will create and configure the required SSH authorized keys file and permissions.
 
@@ -188,7 +151,7 @@ Create the file:
 sudo touch /home/azureuser/.ssh/authorized_keys
 ```
 
-#### Step 3: Configure Permissions
+**Step 3: Configure Permissions**
 
 Set the required permissions:
 
@@ -197,7 +160,7 @@ sudo chmod 700 /home/azureuser/.ssh
 sudo chmod 600 /home/azureuser/.ssh/authorized_keys
 ```
 
-#### Step 4: Verify Permissions
+**Step 4: Verify Permissions**
 
 Verify the directory permissions:
 
@@ -235,22 +198,11 @@ Verify the file exists:
 ls -l /home/azureuser/.ssh/authorized_keys
 ```
 
-#### Task 3 Success Criteria
-
-Your solution is successful when:
-
-- `/home/azureuser/.ssh` directory exists.
-- `/home/azureuser/.ssh/authorized_keys` file exists.
-- The `.ssh` directory permission is set to `700`.
-- The `authorized_keys` file permission is set to `600`.
-
----
-
-### Task 4: Validate and Restart SSH
+### **Task 4: Validate and Restart SSH**
 
 In this task, you will validate the SSH configuration and restart the SSH service safely.
 
-#### Step 1: Validate the SSH Configuration
+**Step 1: Validate the SSH Configuration**
 
 Run:
 
@@ -260,15 +212,14 @@ sudo sshd -t
 
 Expected result: No output should be returned, indicating the configuration syntax is valid.
 
-#### Step 2: Restart the SSH Service
+**Step 2: Restart the SSH Service**
 
 Restart SSH:
 
 ```bash
 sudo systemctl restart ssh
 ```
-
-#### Step 3: Verify SSH Service Status
+**Step 3: Verify SSH Service Status**
 
 Verify the service:
 
@@ -294,7 +245,7 @@ Expected output:
 active
 ```
 
-#### Step 4: Final Verification
+#### **Step 4: Final Verification**
 
 Verify root login is disabled:
 
@@ -346,7 +297,7 @@ Expected output:
 
 <validation step="task-ssh-hardening-02"/>
 
-#### Task 4 Success Criteria
+#### **Task 4 Success Criteria**
 
 Your solution is successful when:
 
@@ -356,7 +307,7 @@ Your solution is successful when:
 
 ---
 
-## Evaluation Criteria
+## **Evaluation Criteria**
 
 Your submission will be evaluated based on:
 
@@ -380,7 +331,7 @@ Your submission will be evaluated based on:
 
 ---
 
-## Completion Criteria
+## **Completion Criteria**
 
 You have successfully completed this exercise when:
 
