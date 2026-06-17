@@ -79,15 +79,15 @@ Monitor the deployment until the status displays:
 Navigate to the resource group `RG-01` and confirm that the following resources exist:
 
 | Resource Type | Expected Resource Name |
-|---|---|
-| Virtual Network | `lab-vnet` |
-| Network Security Group | `lab-nsg` |
-| Virtual Machine | ```text
+
+ Virtual Network : **lab-vnet**
+ Network Security Group : `lab-nsg` 
+ Virtual Machine  ```
 ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
-``` |
-| Network Interface | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-nic` |
-| Public IP Address | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-pip` |
-| Managed Disk | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-osdisk` |
+``` 
+ Network Interface  `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-nic` |
+ Public IP Address  `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-pip` |
+ Managed Disk  `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-osdisk` |
 
 **Step 5: Verify Networking Configuration**
 
