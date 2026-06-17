@@ -295,7 +295,8 @@ Expected output:
 600
 ```
 
-<validation step="task-ssh-hardening-02"/>
+
+<validation step="0b014e67-37d1-4b36-9f6c-05e3c9bf6525" />
 
 #### **Task 4 Success Criteria**
 
