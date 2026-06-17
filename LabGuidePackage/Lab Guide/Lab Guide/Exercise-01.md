@@ -82,7 +82,9 @@ Navigate to the resource group `RG-01` and confirm that the following resources 
 |---|---|
 | Virtual Network | `lab-vnet` |
 | Network Security Group | `lab-nsg` |
-| Virtual Machine | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>` |
+| Virtual Machine | ```text
+ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
+``` |
 | Network Interface | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-nic` |
 | Public IP Address | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-pip` |
 | Managed Disk | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-osdisk` |
