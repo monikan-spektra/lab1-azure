@@ -22,7 +22,7 @@ Your virtual machine is your workhorse throughout the workshop. The lab guide is
 
 To get a better understanding of your lab resources and credentials, navigate to the **Environment** tab.
 
- * **Sign-in Link**: **<inject key="SignInUrl" enableCopy="true" />**
+ * **Sign-in Link**: [https://portal.azure.com](https://portal.azure.com)
  
   * **IAM Username**: **<inject key="azureaduseremail" enableCopy="false" />**
  
