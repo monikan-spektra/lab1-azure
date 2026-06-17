@@ -82,7 +82,7 @@ Navigate to the resource group `RG-01` and confirm that the following resources 
  * Virtual Machine : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>
  * Network Interface : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-nic 
  * Public IP Address : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-pip 
- * Managed Disk : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-osdisk` 
+ * Managed Disk : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-osdisk 
 
 **Step 5: Verify Networking Configuration**
 
