@@ -42,28 +42,7 @@ After completing this exercise, you will be able to:
 
 ## **Assessment Objectives**
 
-### **Task 1: Review Deployment Requirements**
-
-Review the deployment requirements and confirm that you understand:
-
-- The target Azure subscription.
-- The deployment identifier.
-- The resource naming requirements.
-- The ARM deployment files.
-
-### **Task 2: Review the ARM Template and Parameter File**
-
-Confirm that the ARM deployment defines:
-
-- One Virtual Network
-- One Subnet
-- One Network Security Group
-- One Windows Virtual Machine
-- One Network Interface
-- One Public IP Address
-- One Managed OS Disk
-
-### **Task 3: Deploy and Verify the Infrastructure**
+### **Task 1: Deploy and Verify the Infrastructure**
 
 Deploy the ARM template and verify that all required resources were provisioned successfully.
 
@@ -71,86 +50,7 @@ Deploy the ARM template and verify that all required resources were provisioned 
 
 ## **Detailed Instructions**
 
-### **Task 1: Review Deployment Requirements**
-
- **Step 1: Sign in to Azure**
-
-Open a browser and navigate to: [https://portal.azure.com](https://portal.azure.com)
-
-Sign in using:
-
-
- Username :`<inject key="azureaduseremail" enableCopy="false" />`
- Password :`<inject key="azureaduserpassword" enableCopy="false" />` 
-
-**Step 2: Verify Subscription Context**
-
-After signing in, confirm that you are working in:
-
-| Field | Value |
-|---|---|
-| Subscription | `<inject key="subscriptionid">` |
-| Tenant | `<inject key="tenantid">` |
-
-**Step 3: Review Deployment Information**
-
-| Field | Value |
-|---|---|
-| Deployment Identifier | `<inject key="deploymentid"/>` |
-| Deployment Region | `<inject key="location"/>` |
-| Resource Group | `labuser-rg` |
-
-**Step 4: Review Required Resource Names**
-
-Your deployment must create the following resources exactly as shown below:
-
-| Resource Type | Required Resource Name |
-|---|---|
-| Virtual Network | `lab-vnet` |
-| Network Security Group | `lab-nsg` |
-| Windows Virtual Machine | `VM-<inject key="DeploymentID"/>` |
-| Network Interface | `VM-<inject key="deploymentid"/>-nic` |
-| Public IP Address | `VM-<inject key="deploymentid"/>-pip` |
-| Managed OS Disk | `VM-<inject key="deploymentid"/>-osdisk` |
-
-> **Important:** Validation will fail if any required resource uses a different name.
-
-### **Task 2: Review the ARM Template and Parameter File**
-
- **Step 1: Open the ARM Template**
-
-- Open the provided ARM template file.
-- Review the resources defined within the template.
-
- **Step 2: Open the Parameter File**
-
-- Open the parameter file supplied with the lab.
-- Review the parameter values that will be used during deployment.
-
- **Step 3: Verify Template Components**
-
-Confirm that the template defines the following resources:
-
-- One Virtual Network
-- One Subnet
-- One Network Security Group
-- One Windows Virtual Machine
-- One Network Interface
-- One Public IP Address
-- One Managed Disk
-
-**Step 4: Verify VM Configuration**
-
-Ensure that the virtual machine deployment uses:
-
-| Field | Value |
-|---|---|
-| Virtual Machine Name | `ubuntuvm-<inject key="ubuntuvm"/>` |
-| Operating System | linux |
-| Administrator Username | `<inject key="LabVM Admin Username"/>` |
-| Administrator Password | `<inject key="LabVM Admin Password"/>` |
-  
-### **Task 3: Deploy and Verify the Infrastructure**
+### **Task 1: Deploy and Verify the Infrastructure**
 
  **Step 1: Start a Custom Deployment**
 
@@ -164,7 +64,7 @@ Ensure that the virtual machine deployment uses:
 | Field | Value |
 |---|---|
 | Subscription | ```<inject key="subscriptionid">``` |
-| Resource Group | `labuser-rg` |
+| Resource Group | `RG-01` |
 | Region | `<inject key="location"/>` |
 
 - Review the deployment settings.
@@ -217,15 +117,6 @@ Confirm that:
 Your submission will be evaluated based on:
 
 **Task 1**
-- Correct Azure sign-in.
-- Correct subscription and tenant selection.
-- Understanding of deployment requirements.
-
-**Task 2**
-- Review of the ARM template and parameter file.
-- Verification of required template components.
-
-**Task 3**
 - Successful ARM deployment.
 - Correct resource naming.
 - Successful validation completion.
@@ -242,12 +133,12 @@ You have successfully completed the assessment when:
 - The following resources exist in `labuser-rg`:
   - `lab-vnet`
   - `lab-nsg`
-  - `VM-<inject key="DeploymentID"/>`
-  - `VM-<inject key="DeploymentID"/>-nic`
-  - `VM-<inject key="DeploymentID"/>-pip`
-  - `VM-<inject key="DeploymentID"/>-osdisk`
+  - `ubuntuvm-<inject key="deploymentid"/>`
+  - `ubuntuvm-<inject key="deploymentid"/>-nic`
+  - `ubuntuvm-<inject key="deploymentid"/>-pip`
+  - `ubuntuvm-<inject key="deploymentid"/>-osdisk`
 - The Virtual Network contains exactly one subnet.
-- The Virtual Machine is a Windows VM.
+- The Virtual Machine is a linux VM.
 - No unexpected resources were created.
 
 ---
