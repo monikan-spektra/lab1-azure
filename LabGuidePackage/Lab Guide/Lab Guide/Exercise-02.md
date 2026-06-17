@@ -2,19 +2,19 @@
 
 ## **Lab Overview**
 
-In this exercise, you will harden administrative access to an Ubuntu virtual machine hosted in Azure. You will connect to the VM, review the current SSH configuration, disable root sign-in over SSH, and enforce key-based authentication. You will then validate the updated SSH configuration and restart the SSH service to apply the changes.
+In this exercise, you will harden administrative access to an Ubuntu virtual machine hosted in Azure. You will connect to the VM, review the current SSH configuration, disable root sign-in over SSH, enforce key-based authentication, verify the required SSH key files and permissions, validate the SSH configuration, and restart the SSH service.
 
 ---
 
 ## **Scenario**
 
-You are working as an Azure infrastructure engineer for a cloud operations team. The organization requires secure administrative access to Linux virtual machines that are deployed in Azure. Your manager has asked you to create an Ubuntu virtual machine and update its SSH configuration so that root login is disabled and only key-based authentication is permitted.
+You are working as an Azure infrastructure engineer for a cloud operations team. The organization requires secure administrative access to Linux virtual machines deployed in Azure. Your manager has asked you to secure SSH access by disabling root login and password-based authentication while ensuring that key-based authentication is configured correctly.
 
 ---
 
 ## **Solution**
 
-To complete this exercise, you will deploy an Ubuntu virtual machine in the assigned resource group, connect to the VM by using SSH, modify the SSH daemon configuration file to disable root login and enforce key-based authentication, verify that the authorized key is present for the intended account, test the SSH configuration syntax, and restart the SSH service safely.
+To complete this exercise, you will connect to the existing Ubuntu virtual machine, update the SSH daemon configuration, create and verify the required authorized keys configuration, validate the SSH configuration, and restart the SSH service safely.
 
 ---
 
@@ -22,11 +22,30 @@ To complete this exercise, you will deploy an Ubuntu virtual machine in the assi
 
 After completing this exercise, you will be able to:
 
-- Deploy an Ubuntu virtual machine in Azure.
 - Connect to an Ubuntu virtual machine using SSH.
-- Disable root SSH login on a Linux VM.
-- Configure SSH to require key-based authentication.
-- Validate and restart the SSH service after configuration changes.
+- Disable root SSH login.
+- Disable password-based SSH authentication.
+- Configure and verify SSH authorized keys.
+- Validate SSH daemon configuration.
+- Restart and verify the SSH service.
+
+---
+
+## **Environment Information**
+
+Use the following credentials:
+
+| Field | Value |
+|---|---|
+| Username | `<inject key="AzureAdUserEmail" enableCopy="true"/>` |
+| Password | `<inject key="AzureAdUserPassword" enableCopy="true"/>` |
+| Subscription | `<inject key="SubscriptionID" enableCopy="true"/>` |
+| Tenant | `<inject key="TenantID" enableCopy="true"/>` |
+| Deployment ID | `<inject key="DeploymentID" enableCopy="true"/>` |
+| Resource Group | `labuser-rg` |
+| Ubuntu VM Name | `ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>` |
+
+> **Note:** Use the exact resource names specified in the exercise steps. Validation checks depend on those names and configuration values.
 
 ---
 
@@ -34,9 +53,12 @@ After completing this exercise, you will be able to:
 
 In this exercise, you must complete the following:
 
-1. Create and connect to the Ubuntu virtual machine.
-2. Disable root login and configure key-based authentication.
-3. Validate and restart the SSH service.
+1. Connect to the Ubuntu virtual machine.
+2. Disable root SSH login.
+3. Disable password-based authentication.
+4. Configure the required authorized keys file and permissions.
+5. Validate the SSH configuration.
+6. Restart and verify the SSH service.
 
 ---
 
@@ -44,145 +66,333 @@ In this exercise, you must complete the following:
 
 ### **Task 1: Connect to the Ubuntu VM**
 
-In this task, you will connect the ubuntuvm to it using SSH.
+In this task, you will connect to the existing Ubuntu virtual machine.
 
-**Step 2: Connect to the Virtual Machine**
+#### Step 1: Locate the Virtual Machine
 
-1. After the deployment completes, open the virtual machine overview page.
+Navigate to **Virtual Machines** and locate:
 
-2. Select **Connect** > **SSH** and use the provided SSH connection command to connect to the virtual machine.
+```text
+ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
+```
 
-3. After connecting successfully, verify that you can execute administrative commands:
+#### Step 2: Connect Using SSH
 
-   ```bash
-   sudo -i
-   whoami
-   ```
+1. Open the VM overview page.
+2. Select **Connect** > **SSH**.
+3. Connect using the provided SSH command.
 
-4. Confirm that the output displays:
-   `root`
+#### Step 3: Verify Administrative Access
 
-### **Task 2: Disable Root Login and Configure Key-Based Authentication**
+Run:
+
+```bash
+sudo -i
+```
+
+Verify:
+
+```bash
+whoami
+```
+
+Expected output:
+
+```text
+root
+```
+
+#### Task 1 Success Criteria
+
+Your solution is successful when:
+
+- You have located the Ubuntu virtual machine in the Azure portal.
+- You have connected successfully to the VM via SSH.
+- You can execute administrative commands in the terminal.
+
+---
+
+### Task 2: Disable Root Login and Password Authentication
 
 In this task, you will update the SSH configuration to harden access to the Ubuntu VM.
 
-**Step 1: Edit the SSH Daemon Configuration File**
+#### Step 1: Edit the SSH Configuration
 
-1. Open the SSH daemon configuration file:
+Open the SSH daemon configuration file:
 
-   ```bash
-   sudo nano /etc/ssh/sshd_config
-   ```
+```bash
+sudo nano /etc/ssh/sshd_config
+```
 
-2. Locate the following directive. If it does not exist, add it:
+Locate or add the following directives:
 
-   
-   `PermitRootLogin no`
+```text
+PermitRootLogin no
+PasswordAuthentication no
+```
 
+Save the file and exit.
 
-3. Locate the following directive. If it does not exist, add it:
+#### Step 2: Verify Configuration Entries
 
-   
-   `PasswordAuthentication no`
-   
+Verify the `PermitRootLogin` setting:
 
-4. Save the file and exit the editor.
+```bash
+sudo grep '^PermitRootLogin' /etc/ssh/sshd_config
+```
 
-**Step 2: Verify Authorized Keys**
+Expected output:
 
-1. Verify that the SSH public key is present in the authorized keys file:
+```text
+PermitRootLogin no
+```
 
-   ```bash
-   ls -la ~/.ssh
-   cat ~/.ssh/authorized_keys
-   ```
+Verify the `PasswordAuthentication` setting:
 
-2. Confirm that the `.ssh` directory and `authorized_keys` file use secure permissions:
+```bash
+sudo grep '^PasswordAuthentication' /etc/ssh/sshd_config
+```
 
-   ```bash
-   chmod 700 ~/.ssh
-   chmod 600 ~/.ssh/authorized_keys
-   ```
+Expected output:
 
-3. Verify the permissions:
+```text
+PasswordAuthentication no
+```
 
-   ```bash
-   ls -ld ~/.ssh
-   ls -l ~/.ssh/authorized_keys
-   ```
+#### Task 2 Success Criteria
 
-4. Confirm that the output resembles the following:
+Your solution is successful when:
 
-   ```text
-   drwx------ .ssh
-   -rw------- authorized_keys
-   ```
+- `PermitRootLogin no` is confirmed in the SSH daemon configuration file.
+- `PasswordAuthentication no` is confirmed in the SSH daemon configuration file.
 
-> **Important:** Ensure that key-based authentication is functioning correctly before applying the final SSH changes. Otherwise, remote administrative access to the virtual machine could be lost.
+---
 
+### Task 3: Configure Authorized Keys
 
-### **Task 3: Validate and Restart the SSH Service**
+In this task, you will create and configure the required SSH authorized keys file and permissions.
+
+#### Step 1: Create the Required SSH Directory
+
+Create the required directory:
+
+```bash
+sudo mkdir -p /home/azureuser/.ssh
+```
+
+#### Step 2: Create the Authorized Keys File
+
+Create the file:
+
+```bash
+sudo touch /home/azureuser/.ssh/authorized_keys
+```
+
+#### Step 3: Configure Permissions
+
+Set the required permissions:
+
+```bash
+sudo chmod 700 /home/azureuser/.ssh
+sudo chmod 600 /home/azureuser/.ssh/authorized_keys
+```
+
+#### Step 4: Verify Permissions
+
+Verify the directory permissions:
+
+```bash
+stat -c %a /home/azureuser/.ssh
+```
+
+Expected output:
+
+```text
+700
+```
+
+Verify the file permissions:
+
+```bash
+stat -c %a /home/azureuser/.ssh/authorized_keys
+```
+
+Expected output:
+
+```text
+600
+```
+
+Verify the directory exists:
+
+```bash
+ls -ld /home/azureuser/.ssh
+```
+
+Verify the file exists:
+
+```bash
+ls -l /home/azureuser/.ssh/authorized_keys
+```
+
+#### Task 3 Success Criteria
+
+Your solution is successful when:
+
+- `/home/azureuser/.ssh` directory exists.
+- `/home/azureuser/.ssh/authorized_keys` file exists.
+- The `.ssh` directory permission is set to `700`.
+- The `authorized_keys` file permission is set to `600`.
+
+---
+
+### Task 4: Validate and Restart SSH
 
 In this task, you will validate the SSH configuration and restart the SSH service safely.
 
-**Step 1: Test the SSH Configuration Syntax**
+#### Step 1: Validate the SSH Configuration
 
-1. Run the following command to validate the SSH daemon configuration:
+Run:
 
-   ```bash
-   sudo sshd -t
-   ```
+```bash
+sudo sshd -t
+```
 
-2. Confirm that no output is returned, indicating that the configuration syntax is valid.
+Expected result: No output should be returned, indicating the configuration syntax is valid.
 
-**Step 2: Restart the SSH Service**
+#### Step 2: Restart the SSH Service
 
-1. Restart the SSH service:
+Restart SSH:
 
-   ```bash
-   sudo systemctl restart ssh
-   ```
+```bash
+sudo systemctl restart ssh
+```
 
-2. Verify that the SSH service is running correctly:
+#### Step 3: Verify SSH Service Status
 
-   ```bash
-   sudo systemctl status ssh --no-pager
-   ```
+Verify the service:
 
-3. Confirm that the service status displays an active state.
+```bash
+sudo systemctl status ssh --no-pager
+```
 
-<validation step="0b014e67-37d1-4b36-9f6c-05e3c9bf6525" />
+Confirm the service state shows:
 
-**Step 3: Verify Final Configuration**
+```text
+active (running)
+```
 
-Verify that root SSH login is disabled and that password-based authentication has been disabled.
+You may also verify:
 
-## **Evaluation Criteria**
+```bash
+sudo systemctl is-active ssh
+```
+
+Expected output:
+
+```text
+active
+```
+
+#### Step 4: Final Verification
+
+Verify root login is disabled:
+
+```bash
+sudo grep '^PermitRootLogin' /etc/ssh/sshd_config
+```
+
+Expected output:
+
+```text
+PermitRootLogin no
+```
+
+Verify password authentication is disabled:
+
+```bash
+sudo grep '^PasswordAuthentication' /etc/ssh/sshd_config
+```
+
+Expected output:
+
+```text
+PasswordAuthentication no
+```
+
+Verify `.ssh` directory permissions:
+
+```bash
+stat -c %a /home/azureuser/.ssh
+```
+
+Expected output:
+
+```text
+700
+```
+
+Verify `authorized_keys` file permissions:
+
+```bash
+stat -c %a /home/azureuser/.ssh/authorized_keys
+```
+
+Expected output:
+
+```text
+600
+```
+
+<validation step="task-ssh-hardening-02"/>
+
+#### Task 4 Success Criteria
+
+Your solution is successful when:
+
+- The SSH configuration validates without errors.
+- The SSH service restarts and remains in an active state.
+- All final verification checks return the expected values.
+
+---
+
+## Evaluation Criteria
 
 Your submission will be evaluated based on:
 
 **Task 1**
-- Successful SSH connection to the virtual machine.
+- Successfully connected to the Ubuntu virtual machine.
 
 **Task 2**
-- Root SSH login is disabled in the SSH daemon configuration.
-- Password-based SSH authentication is disabled so that key-based authentication is required.
+- Root SSH login is disabled.
+- Password authentication is disabled.
 
 **Task 3**
-- The SSH configuration validates successfully.
-- The SSH service restarts and remains operational.
+- `/home/azureuser/.ssh` exists.
+- `/home/azureuser/.ssh/authorized_keys` exists.
+- `.ssh` permissions are set to `700`.
+- `authorized_keys` permissions are set to `600`.
+
+**Task 4**
+- SSH configuration validates successfully.
+- SSH service is restarted successfully.
+- SSH service remains active.
 
 ---
 
-## **Completion Criteria**
+## Completion Criteria
 
 You have successfully completed this exercise when:
 
-- You connected successfully to the Ubuntu VM.
+- You connected to the Ubuntu virtual machine.
 - Root login over SSH is disabled.
-- Key-based authentication is configured and available.
-- The SSH configuration has been validated.
-- The SSH service has been restarted successfully.
+- Password-based SSH authentication is disabled.
+- `/home/azureuser/.ssh` exists.
+- `/home/azureuser/.ssh/authorized_keys` exists.
+- The `.ssh` directory permission is `700`.
+- The `authorized_keys` file permission is `600`.
+- The SSH configuration validates successfully.
+- The SSH service is running.
 
 ---
 
