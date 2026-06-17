@@ -162,7 +162,6 @@ Verify that root SSH login is disabled and that password-based authentication ha
 Your submission will be evaluated based on:
 
 **Task 1**
-- Successful creation of the Ubuntu virtual machine with the correct name.
 - Successful SSH connection to the virtual machine.
 
 **Task 2**
@@ -179,7 +178,6 @@ Your submission will be evaluated based on:
 
 You have successfully completed this exercise when:
 
-- You deployed the Ubuntu virtual machine named `ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>`.
 - You connected successfully to the Ubuntu VM.
 - Root login over SSH is disabled.
 - Key-based authentication is configured and available.
