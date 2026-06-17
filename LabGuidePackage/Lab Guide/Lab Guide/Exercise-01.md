@@ -91,7 +91,7 @@ ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
 
 **Step 5: Verify Networking Configuration**
 
-Confirm that:
+Confirm that: ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
 
 - Exactly one Virtual Network exists.
 - The Virtual Network contains exactly one subnet.
