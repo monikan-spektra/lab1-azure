@@ -2,7 +2,7 @@ Import-Module Az.Compute
 Import-Module Az.Accounts
 
 $deployment_id     = $deployment_id
-$resourceGroupName = "labuser-rg"
+$resourceGroupName = "RG-01"
 $sub_id            = $sub_id
 $vmName            = "ubuntuvm-$deployment_id"
 
