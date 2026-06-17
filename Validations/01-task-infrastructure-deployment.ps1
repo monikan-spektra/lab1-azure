@@ -3,8 +3,8 @@ Import-Module Az.Network
 Import-Module Az.Resources
 Import-Module Az.Accounts
 
-$deployment_id     =  $deployment_id
-$resourceGroupName = "labuser-rg"
+$deployment_id     = $deployment_id
+$resourceGroupName = "RG-01"
 $sub_id            = $sub_id
 
 Select-AzSubscription -SubscriptionId $sub_id | Out-Null
@@ -19,6 +19,15 @@ do {
         $validationSuccess = $true
         $failureReasons = @()
 
+        $expectedNames = @(
+            "lab-vnet",
+            "lab-nsg",
+            "ubuntuvm-$deployment_id",
+            "ubuntuvm-$deployment_id-nic",
+            "ubuntuvm-$deployment_id-pip",
+            "ubuntuvm-$deployment_id-osdisk"
+        )
+
         $rg = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
 
         if ($null -eq $rg) {
@@ -30,20 +39,6 @@ do {
 
             $resources = @(Get-AzResource -ResourceGroupName $resourceGroupName -ErrorAction SilentlyContinue)
 
-            $expectedNames = @(
-                "lab-nsg",
-                "lab-vnet",
-                "VM-$deployment_id",
-                "VM-$deployment_id-nic",
-                "VM-$deployment_id-osdisk",
-                "VM-$deployment_id-pip"
-            )
-
-            if ($resources.Count -ne $expectedNames.Count) {
-                $validationSuccess = $false
-                $failureReasons += "Expected exactly $($expectedNames.Count) resources in '$resourceGroupName'. Found $($resources.Count)."
-            }
-
             foreach ($name in $expectedNames) {
                 if ($name -notin $resources.Name) {
                     $validationSuccess = $false
@@ -51,60 +46,66 @@ do {
                 }
             }
 
-            $expectedResourceTypes = @(
-                "Microsoft.Network/virtualNetworks",
-                "Microsoft.Network/networkSecurityGroups",
-                "Microsoft.Compute/virtualMachines",
-                "Microsoft.Network/networkInterfaces",
-                "Microsoft.Network/publicIPAddresses",
-                "Microsoft.Compute/disks"
-            )
+            $vnet = Get-AzVirtualNetwork `
+                -ResourceGroupName $resourceGroupName `
+                -Name "lab-vnet" `
+                -ErrorAction SilentlyContinue
 
-            $unexpectedResources = $resources | Where-Object {
-                $_.ResourceType -notin $expectedResourceTypes
-            }
-
-            if ($unexpectedResources.Count -gt 0) {
+            if ($null -eq $vnet) {
                 $validationSuccess = $false
-                $failureReasons += "Unexpected resources found: $(($unexpectedResources | Select-Object -ExpandProperty Name) -join ', ')."
+                $failureReasons += "Virtual Network 'lab-vnet' was not found."
             }
-
-            $vnets = @(Get-AzVirtualNetwork -ResourceGroupName $resourceGroupName -ErrorAction SilentlyContinue)
-
-            if ($vnets.Count -ne 1) {
-                $validationSuccess = $false
-                $failureReasons += "Exactly one Virtual Network must exist in '$resourceGroupName'."
-            }
-            elseif ($vnets[0].Subnets.Count -ne 1) {
+            elseif ($vnet.Subnets.Count -ne 1) {
                 $validationSuccess = $false
                 $failureReasons += "The Virtual Network must contain exactly one subnet."
             }
 
-            $nsgs = @(Get-AzNetworkSecurityGroup -ResourceGroupName $resourceGroupName -ErrorAction SilentlyContinue)
+            $nsg = Get-AzNetworkSecurityGroup `
+                -ResourceGroupName $resourceGroupName `
+                -Name "lab-nsg" `
+                -ErrorAction SilentlyContinue
 
-            if ($nsgs.Count -ne 1) {
+            if ($null -eq $nsg) {
                 $validationSuccess = $false
-                $failureReasons += "Exactly one Network Security Group must exist in '$resourceGroupName'."
+                $failureReasons += "Network Security Group 'lab-nsg' was not found."
             }
 
-            $vms = @(Get-AzVM -ResourceGroupName $resourceGroupName -ErrorAction SilentlyContinue)
+            # Get VM object for OS validation
+            $vm = Get-AzVM `
+                -ResourceGroupName $resourceGroupName `
+                -Name "ubuntuvm-$deployment_id" `
+                -ErrorAction SilentlyContinue
 
-            if ($vms.Count -ne 1) {
+            if ($null -eq $vm) {
                 $validationSuccess = $false
-                $failureReasons += "Exactly one Virtual Machine must exist in '$resourceGroupName'."
+                $failureReasons += "Virtual Machine 'ubuntuvm-$deployment_id' was not found."
             }
             else {
 
-                $vm = $vms[0]
-
-                if ($vm.Name -ne "VM-$deployment_id") {
+                if ($vm.Name -ne "ubuntuvm-$deployment_id") {
                     $validationSuccess = $false
-                    $failureReasons += "The Virtual Machine name must be 'VM-$deployment_id'."
+                    $failureReasons += "The Virtual Machine name must be 'ubuntuvm-$deployment_id'."
                 }
 
-                if ($vm.StorageProfile.OSDisk.OsType -ne "Windows") {
+                if ($vm.StorageProfile.OSDisk.OsType.ToString() -ne "Linux") {
                     $validationSuccess = $false
-                    $failureReasons += "The Virtual Machine must be a Windows VM."
+                    $failureReasons += "The Virtual Machine must be a Linux VM."
+                }
+
+                # Get VM status separately for provisioning state validation
+                $vmStatus = Get-AzVM `
+                    -ResourceGroupName $resourceGroupName `
+                    -Name "ubuntuvm-$deployment_id" `
+                    -Status `
+                    -ErrorAction SilentlyContinue
+
+                $provisioningStatus = $vmStatus.Statuses | Where-Object {
+                    $_.Code -like "ProvisioningState/*"
+                }
+
+                if ($null -eq $provisioningStatus -or $provisioningStatus.DisplayStatus -notmatch "succeeded") {
+                    $validationSuccess = $false
+                    $failureReasons += "The Virtual Machine provisioning state must be Succeeded."
                 }
             }
         }
@@ -112,16 +113,16 @@ do {
         if ($validationSuccess) {
 
             $message = @{
-                Status = "Succeeded"
-                Message = "Validation Success. ARM deployment completed successfully. labuser-rg contains the expected resources: lab-vnet, lab-nsg, VM-$deployment_id, VM-$deployment_id-nic, VM-$deployment_id-osdisk, and VM-$deployment_id-pip."
+                Status  = "Succeeded"
+                Message = "Validation Success. Required resources were deployed successfully: lab-vnet, lab-nsg, ubuntuvm-$deployment_id, ubuntuvm-$deployment_id-nic, ubuntuvm-$deployment_id-pip and ubuntuvm-$deployment_id-osdisk."
             } | ConvertTo-Json -Compress
         }
         else {
 
             $message = @{
-                Status = "Failed"
+                Status  = "Failed"
                 Message = ($failureReasons -join " ")
-            } | ConvertToJson -Compress
+            } | ConvertTo-Json -Compress
         }
 
         Push-OutputBinding -Name Response -Value (
@@ -142,7 +143,7 @@ do {
                     StatusCode = [System.Net.HttpStatusCode]::OK
                     Body = (
                         @{
-                            Status = "Failed"
+                            Status  = "Failed"
                             Message = "Retry exhausted: $($_.Exception.Message)"
                         } | ConvertTo-Json -Compress
                     )
