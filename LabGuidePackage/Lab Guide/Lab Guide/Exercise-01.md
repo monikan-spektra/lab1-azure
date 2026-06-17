@@ -62,7 +62,7 @@ Deploy the ARM template and verify that all required resources were provisioned 
 **Step 2: Configure Deployment Details**
 
 | Field | Value |
-| Resource Group | `RG-01` |
+* Resource Group :`RG-01` 
 
 
 - Review the deployment settings.
@@ -82,10 +82,10 @@ Navigate to the resource group `RG-01` and confirm that the following resources 
 
  * Virtual Network : `lab-vnet`
  * Network Security Group : `lab-nsg` 
- * Virtual Machine : ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
- * Network Interface : ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>-nic |
- * Public IP Address : ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>-pip |
- * Managed Disk : ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>-osdisk` |
+ * Virtual Machine : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>
+ * Network Interface : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-nic |
+ * Public IP Address : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-pip |
+ * Managed Disk : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-osdisk` |
 
 **Step 5: Verify Networking Configuration**
 
@@ -100,7 +100,7 @@ Confirm that:
 Confirm that:
 
 - Exactly one Virtual Machine exists.
-- The VM name is ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
+- The VM name is ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>
 - The VM operating system is **linux**.
 - The VM provisioning state displays **Succeeded**.
 
@@ -131,10 +131,10 @@ You have successfully completed the assessment when:
 - The following resources exist in `RG-01`:
   - `lab-vnet`
   - `lab-nsg`
-  - ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
-  - ubuntuvm-<inject key="DeploymentID" enableCopy="true"/>
-  - `ubuntuvm-<inject key="deploymentid" enableCopy="true" />-pip`
-  - `ubuntuvm-<inject key="deploymentid" enableCopy="true" />-osdisk`
+  - ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>
+  - ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-nic 
+  - Public IP Address : ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-pip 
+  - ubuntuvm-<inject key="DeploymentID" enableCopy="false"/>-osdisk` 
 - The Virtual Network contains exactly one subnet.
 - The Virtual Machine is a linux VM.
 - No unexpected resources were created.
