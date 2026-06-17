@@ -42,30 +42,9 @@ In this exercise, you must complete the following:
 
 ## **Detailed Instructions**
 
-### **Task 1: Create and Connect to the Ubuntu VM**
+### **Task 1: Connect to the Ubuntu VM**
 
-In this task, you will deploy an Ubuntu virtual machine and connect to it using SSH.
-
-**Step 1: Create the Ubuntu Virtual Machine**
-
-1. Navigate to **Virtual machines** and select **Create** > **Azure virtual machine**.
-
-2. Configure the virtual machine using the following values:
-
-   | Setting | Value |
-   |---|---|
-   | Resource Group | `labuser-rg` |
-   | Virtual Machine Name | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>` |
-   | Image | Ubuntu Server 22.04 LTS |
-   | Size | Standard_B2s |
-   | Authentication Type | SSH public key |
-   | Username | `azureuser` |
-   | Inbound Ports | Allow selected ports |
-   | Select Inbound Ports | SSH (22) |
-
-3. Select **Review + Create**, and then select **Create**.
-
-4. If prompted, download the generated SSH private key and store it securely.
+In this task, you will connect the ubuntuvm to it using SSH.
 
 **Step 2: Connect to the Virtual Machine**
 
