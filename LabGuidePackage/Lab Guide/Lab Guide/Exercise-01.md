@@ -84,10 +84,10 @@ Navigate to the resource group `labuser-rg` and confirm that the following resou
 |---|---|
 | Virtual Network | `lab-vnet` |
 | Network Security Group | `lab-nsg` |
-| Virtual Machine | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>` |
-| Network Interface | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-nic` |
-| Public IP Address | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-pip` |
-| Managed Disk | `ubuntuvm-<inject key="deploymentid" enableCopy="true"/>-osdisk` |
+| Virtual Machine | `ubuntuvm-<inject key="deploymentid" enableCopy="false"/>` |
+| Network Interface | `ubuntuvm-<inject key="deploymentid" enableCopy="false"/>-nic` |
+| Public IP Address | `ubuntuvm-<inject key="deploymentid" enableCopy="false"/>-pip` |
+| Managed Disk | `ubuntuvm-<inject key="deploymentid" enableCopy="false"/>-osdisk` |
 
 **Step 5: Verify Networking Configuration**
 
