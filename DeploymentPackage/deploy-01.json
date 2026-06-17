@@ -28,7 +28,7 @@
 		}
 	},
 	"variables": {
-		"scripturl": "https://docs-api.cloudlabs.ai/repos/raw.githubusercontent.com/CloudLabsAI-Azure/Nedbank/refs/heads/main/nedbank-vdi-platform-intermediate/DeploymentPackage/psscript-01.ps1",
+		"scripturl": "https://raw.githubusercontent.com/monikan-spektra/lab1-azure/main/DeploymentPackage/psscript-01.ps1",
 		"location": "[resourceGroup().location]",
 		"LabVMName": "[concat('labvm-',parameters('DeploymentID'))]",
 		"vmSize": "Standard_B2s",
