@@ -1,7 +1,7 @@
 {
   "Name": "CloudLab Infrastructure Operator",
   "IsCustom": true,
-  "Description": "Can create and manage compute, networking and storage resources required for Azure infrastructure labs. Delete operations are restricted.",
+  "Description": "Can create and manage compute and networking resources required for Azure labs. Delete operations are restricted.",
   "Actions": [
     "Microsoft.Authorization/*/read",
  
@@ -23,14 +23,11 @@
     "Microsoft.Network/networkInterfaces/*",
     "Microsoft.Network/networkSecurityGroups/*",
     "Microsoft.Network/publicIPAddresses/*",
-    "Microsoft.Network/loadBalancers/read",
-    "Microsoft.Network/networkWatchers/read",
     "Microsoft.Network/locations/*/read",
+    "Microsoft.Network/networkWatchers/read",
     "Microsoft.Network/operations/read",
  
     "Microsoft.Storage/storageAccounts/read",
-    "Microsoft.Storage/storageAccounts/listKeys/action",
- 
     "Microsoft.ResourceHealth/availabilityStatuses/read"
   ],
   "NotActions": [
