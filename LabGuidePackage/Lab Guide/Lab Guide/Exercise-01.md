@@ -163,7 +163,7 @@ Ensure that the virtual machine deployment uses:
 
 | Field | Value |
 |---|---|
-| Subscription | `<inject key="subscriptionid">` |
+| Subscription | ```<inject key="subscriptionid">``` |
 | Resource Group | `labuser-rg` |
 | Region | `<inject key="location"/>` |
 
